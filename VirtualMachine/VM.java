@@ -18,14 +18,14 @@ public class VM {
     private int[] MEMORY = new int[MEMORY_SIZE];
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
-
-    public void runProgram(String filepath) throws Exception {
-        try(BufferedReader br = new BufferedReader(new FileReader(filepath)))
+    
+    public void runProgram() throws Exception {
+        setIC(CODE_SEGMENT_START);      
+        try
         {
-            String currentLine;
-            while ((currentLine = br.readLine()) != null)
+            while (true)
             {
-                resolveCommand(currentLine);
+                executeInstruction();
             }
         }
         catch(IOException ioe)
@@ -40,14 +40,16 @@ public class VM {
                 throw e;
         }
     }
+    public void writeWord(int address, int word)
+    {
+        if(address < 0 || address >= MEMORY_SIZE)
+            return;
+        MEMORY[address] = word;
+    }
     public void writeWord(int page, int offset, int word)
     {
         int address = page * PAGE_SIZE + offset;
-        if (address < 0 || address >= MEMORY_SIZE)
-        {
-            return;
-        }
-        MEMORY[address] = word;
+        writeWord(address, word);
     }
     public void loadProgram(String program)
     {        
@@ -83,16 +85,16 @@ public class VM {
                     }
                     else if(currentLine.equals("DW"))
                     {
-                        MEMORY[offset++] = Integer.parseInt(split[1]);
+                        writeWord(offset++, Integer.parseInt(split[1]));
                     }
                     continue;
                 }
                 else if(state.equals("CODE"))
                 {
                     Instruction instr = Instruction.getInstructionByName(currentLine);
-                    MEMORY[offset++] = instr.getOpcode();
+                    writeWord(offset++, instr.getOpcode());
                     for (int i = 0; i < instr.getArgCount(); i++){
-                        MEMORY[offset++] = Integer.parseInt(split[i+1]);
+                        writeWord(offset++, Integer.parseInt(split[i+1]));
                     }
                 }
             }
@@ -102,20 +104,17 @@ public class VM {
             ioe.printStackTrace();
         }
     }
-    public void resolveCommand(String command) throws Exception {
-        String[] splitCommand = command.split(" ");
-        String instruction = splitCommand[0];
-        if (instruction.equals("ADD")) {
+    public void executeInstruction() throws Exception {
+        int op = MEMORY[getIC()];
+        incrementIC();
+        if(op == Instruction.ADD.getOpcode())
             ADD();
-        } else if(instruction.equals("SUB")){
+        else if (op == Instruction.SUB.getOpcode())
             SUB();
-        } else if(instruction.equals("MUL")){
+        else if (op == Instruction.MUL.getOpcode())
             MUL();
-        } else if(instruction.equals("HALT")){
+        else if (op == Instruction.HALT.getOpcode())
             HALT();
-        } else {
-            throw new Exception("Unrecognized instruction: " + instruction);
-        }
     }
     public void setZF(){
         CMP |= (1 << 6);
@@ -174,18 +173,42 @@ public class VM {
     public void setIC(int ic) {
         IC = ic;
     }
+    public void incrementIC(){
+        setIC(getIC()+1);
+    }
 
 
     // VM instructions
     // Arithemtic
     public void ADD() {
-        setR1(getR1() + getR2());
+        try {
+            setR1(Math.addExact(getR1(), getR2()));
+            if (((getR1() >> 6) & 1) == 1) {
+                setSF();
+            }
+        } catch (ArithmeticException e) {
+            setOF();
+        }
     }
     public void SUB() {
-        setR1(getR1() - getR2());
+        try {
+            setR1(Math.subtractExact(getR1(), getR2()));
+            if (((getR1() >> 6) & 1) == 1) {
+                setSF();
+            }
+        } catch (ArithmeticException e) {
+            setOF();
+        }
     }
     public void MUL() {
-        setR1(getR1() * getR2());
+        try {
+            setR1(Math.multiplyExact(getR1(), getR2()));
+            if (((getR1() >> 6) & 1) == 1) {
+                setSF();
+            }
+        } catch (ArithmeticException e) {
+            setOF();
+        }
     }
     
     public void HALT() throws Exception {
