@@ -1,5 +1,9 @@
 package MultiProgramOperatingSystem.VirtualMachine;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
+
 public class VM {
     private int IC;
     private int CMP;
@@ -13,6 +17,42 @@ public class VM {
 
     private byte[] MEMORY = new byte[PAGE_SIZE * PAGE_COUNT * WORD_SIZE];
 
+    public void runProgram(String filepath) throws Exception {
+        try(BufferedReader br = new BufferedReader(new FileReader(filepath)))
+        {
+            String currentLine;
+            while ((currentLine = br.readLine()) != null)
+            {
+                resolveCommand(currentLine);
+            }
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+        catch(Exception e)
+        {
+            if(e.getMessage().equals("HALT"))
+                return;
+            else
+                throw e;
+        }
+    }
+    public void resolveCommand(String command) throws Exception {
+        String[] splitCommand = command.split(" ");
+        String instruction = splitCommand[0];
+        if (instruction.equals("ADD")) {
+                ADD();
+        } else if(instruction.equals("SUB")){
+            SUB();
+        } else if(instruction.equals("MUL")){
+            MUL();
+        } else if(instruction.equals("HALT")){
+            HALT();
+        } else {
+            throw new Exception("Unrecognized instruction: " + instruction);
+        }
+    }
     public void setZF(){
         CMP |= (1 << 6);
     }
@@ -82,5 +122,9 @@ public class VM {
     }
     public void MUL() {
         setR1(getR1() * getR2());
+    }
+    
+    public void HALT() throws Exception {
+        throw new Exception("HALT");
     }
 }
