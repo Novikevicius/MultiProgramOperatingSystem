@@ -14,8 +14,8 @@ public class VM {
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT = 16;
     private static final int WORD_SIZE = 4;
-
-    private byte[] MEMORY = new byte[PAGE_SIZE * PAGE_COUNT * WORD_SIZE];
+    private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
+    private int[] MEMORY = new int[MEMORY_SIZE];
 
     public void runProgram(String filepath) throws Exception {
         try(BufferedReader br = new BufferedReader(new FileReader(filepath)))
