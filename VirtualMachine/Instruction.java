@@ -8,6 +8,9 @@ public enum Instruction {
     SUB(0x02),
     MUL(0x03),
     CMP(0x04),
+    LW1(0x05, 2),
+    LW2(0x06, 2),
+    LW3(0x07, 2),
     HALT(0x10);
     private int opcode;
     private int args;
