@@ -11,6 +11,9 @@ public enum Instruction {
     LW1(0x05, 2),
     LW2(0x06, 2),
     LW3(0x07, 2),
+    SW1(0x08, 2),
+    SW2(0x09, 2),
+    SW3(0x0A, 2),
     HALT(0x10);
     private int opcode;
     private int args;
