@@ -113,8 +113,12 @@ public class VM {
             SUB();
         else if (op == Instruction.MUL.getOpcode())
             MUL();
+        else if (op == Instruction.CMP.getOpcode())
+            MUL();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
+        else
+            throw new Exception("Unrecognized instruction");
     }
     public void setZF(){
         CMP |= (1 << 6);
@@ -206,6 +210,16 @@ public class VM {
             if (((getR1() >> 6) & 1) == 1) {
                 setSF();
             }
+        } catch (ArithmeticException e) {
+            setOF();
+        }
+    }
+    public void CMP() {
+        try {
+            if(getR1() == getR2())
+                setZF();
+            else
+                clearZF();
         } catch (ArithmeticException e) {
             setOF();
         }

@@ -7,7 +7,8 @@ public enum Instruction {
     ADD(0x01),
     SUB(0x02),
     MUL(0x03),
-    HALT(0x04);
+    CMP(0x04),
+    HALT(0x10);
     private int opcode;
     private int args;
     private Instruction(int opcode)
