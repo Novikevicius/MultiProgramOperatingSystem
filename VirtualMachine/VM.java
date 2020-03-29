@@ -16,6 +16,8 @@ public class VM {
     private static final int WORD_SIZE = 4;
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
     private int[] MEMORY = new int[MEMORY_SIZE];
+    private static final int DATA_SEGMENT_START = 0;
+    private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
 
     public void runProgram(String filepath) throws Exception {
         try(BufferedReader br = new BufferedReader(new FileReader(filepath)))
@@ -47,11 +49,64 @@ public class VM {
         }
         MEMORY[address] = word;
     }
+    public void loadProgram(String program)
+    {        
+        try(BufferedReader br = new BufferedReader(new FileReader(program)))
+        {
+            String state = "START";
+            String currentLine;
+            int offset = 0;
+            while ((currentLine = br.readLine()) != null)
+            {
+                String[] split = currentLine.split(" ");
+                currentLine = split[0];
+                if(state.equals("START"))
+                {
+                    if(currentLine.equals("DATA"))
+                    {
+                        state = "DATA";
+                        offset = DATA_SEGMENT_START;
+                        continue;
+                    }
+                    else
+                    {
+                        System.err.println("Program does not contain a data segmend");
+                        return;
+                    }
+                }
+                else if(state.equals("DATA"))
+                {
+                    if(currentLine.equals("CODE"))
+                    {
+                        state = "CODE";
+                        offset = CODE_SEGMENT_START;
+                    }
+                    else if(currentLine.equals("DW"))
+                    {
+                        MEMORY[offset++] = Integer.parseInt(split[1]);
+                    }
+                    continue;
+                }
+                else if(state.equals("CODE"))
+                {
+                    Instruction instr = Instruction.getInstructionByName(currentLine);
+                    MEMORY[offset++] = instr.getOpcode();
+                    for (int i = 0; i < instr.getArgCount(); i++){
+                        MEMORY[offset++] = Integer.parseInt(split[i+1]);
+                    }
+                }
+            }
+        }
+        catch(IOException ioe)
+        {
+            ioe.printStackTrace();
+        }
+    }
     public void resolveCommand(String command) throws Exception {
         String[] splitCommand = command.split(" ");
         String instruction = splitCommand[0];
         if (instruction.equals("ADD")) {
-                ADD();
+            ADD();
         } else if(instruction.equals("SUB")){
             SUB();
         } else if(instruction.equals("MUL")){
