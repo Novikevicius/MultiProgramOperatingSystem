@@ -70,4 +70,17 @@ public class VM {
     public void setIC(int ic) {
         IC = ic;
     }
+
+
+    // VM instructions
+    // Arithemtic
+    public void ADD() {
+        setR1(getR1() + getR2());
+    }
+    public void SUB() {
+        setR1(getR1() - getR2());
+    }
+    public void MUL() {
+        setR1(getR1() * getR2());
+    }
 }
