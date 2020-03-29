@@ -16,6 +16,13 @@ public class RM {
     private byte CH2;
     private byte CH3;
 
+    private static final int BLOCK_SIZE = 16;
+    private static final int PAGE_SIZE = 16;
+    private static final int PAGE_COUNT = 64;
+    private static final int WORD_SIZE = 4;
+
+    private byte[] MEMORY = new byte[BLOCK_SIZE * PAGE_SIZE * PAGE_COUNT * WORD_SIZE];
+
     public void setZF(){
         CMP |= (1 << 6);
     }
