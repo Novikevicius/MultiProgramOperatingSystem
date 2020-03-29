@@ -4,6 +4,8 @@ import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 
+import MultiProgramOperatingSystem.Main;
+
 public class VM {
     private int IC;
     private int CMP;
@@ -19,6 +21,16 @@ public class VM {
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
     
+    public void printRegisters()
+    {
+        System.out.println("--------------------------");
+        System.out.println("R1: " + getR1());
+        System.out.println("R2: " + getR2());
+        System.out.println("R3: " + getR3());
+        System.out.println("IC: " + getIC());
+        System.out.println("CMP: " + CMP);
+        System.out.println("--------------------------");
+    }
     public void runProgram() throws Exception {
         setIC(CODE_SEGMENT_START);      
         try
@@ -50,6 +62,16 @@ public class VM {
     {
         int address = page * PAGE_SIZE + offset;
         writeWord(address, word);
+    }
+    public int readWord(int address)
+    {
+        if(address < 0 || address >= MEMORY_SIZE)
+            return -1;
+        return MEMORY[address];
+    }
+    public int readWord(int page, int offset)
+    {
+        return readWord(page * PAGE_SIZE + offset);
     }
     public void loadProgram(String program)
     {        
@@ -107,6 +129,11 @@ public class VM {
     public void executeInstruction() throws Exception {
         int op = MEMORY[getIC()];
         incrementIC();
+        if(Main.DEBUG)
+        {
+            System.out.println("Executing " + op);
+            printRegisters();
+        }
         if(op == Instruction.ADD.getOpcode())
             ADD();
         else if (op == Instruction.SUB.getOpcode())
@@ -114,7 +141,13 @@ public class VM {
         else if (op == Instruction.MUL.getOpcode())
             MUL();
         else if (op == Instruction.CMP.getOpcode())
-            MUL();
+            CMP();
+        else if (op == Instruction.LW1.getOpcode())
+            LW1();
+        else if (op == Instruction.LW2.getOpcode())
+            LW2();
+        else if (op == Instruction.LW3.getOpcode())
+            LW3();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -215,16 +248,32 @@ public class VM {
         }
     }
     public void CMP() {
-        try {
-            if(getR1() == getR2())
-                setZF();
-            else
-                clearZF();
-        } catch (ArithmeticException e) {
-            setOF();
-        }
+        if(getR1() == getR2())
+            setZF();
+        else
+            clearZF();
     }
-    
+    public void LW1() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        setR1(readWord(x1, x2));
+    }    
+    public void LW2() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        setR2(readWord(x1, x2));
+    }   
+    public void LW3() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        setR3(readWord(x1, x2));
+    }   
     public void HALT() throws Exception {
         throw new Exception("HALT");
     }
