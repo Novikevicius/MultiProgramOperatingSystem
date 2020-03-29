@@ -6,7 +6,8 @@ public class Main {
     public static void main(String[] args) {
         VM vm = new VM();
         try {
-            vm.runProgram("MultiProgramOperatingSystem/Program.txt");
+            vm.loadProgram("MultiProgramOperatingSystem/Program.txt");
+            vm.runProgram();
         } catch (Exception e) {
             e.printStackTrace();
         }
