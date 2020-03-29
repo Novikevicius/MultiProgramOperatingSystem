@@ -148,6 +148,12 @@ public class VM {
             LW2();
         else if (op == Instruction.LW3.getOpcode())
             LW3();
+        else if (op == Instruction.SW1.getOpcode())
+            SW1();
+        else if (op == Instruction.SW2.getOpcode())
+            SW2();
+        else if (op == Instruction.SW3.getOpcode())
+            SW3();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -273,6 +279,27 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR3(readWord(x1, x2));
+    }    
+    public void SW1() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        writeWord(x1, x2, getR1());
+    }   
+    public void SW2() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        writeWord(x1, x2, getR2());
+    }   
+    public void SW3() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        writeWord(x1, x2, getR3());
     }   
     public void HALT() throws Exception {
         throw new Exception("HALT");
