@@ -38,6 +38,15 @@ public class VM {
                 throw e;
         }
     }
+    public void writeWord(int page, int offset, int word)
+    {
+        int address = page * PAGE_SIZE + offset;
+        if (address < 0 || address >= MEMORY_SIZE)
+        {
+            return;
+        }
+        MEMORY[address] = word;
+    }
     public void resolveCommand(String command) throws Exception {
         String[] splitCommand = command.split(" ");
         String instruction = splitCommand[0];
