@@ -7,12 +7,11 @@ public class VM {
     private int R2;
     private int R3;
 
-    private static final int BLOCK_SIZE = 16;
     private static final int PAGE_SIZE = 16;
-    private static final int PAGE_COUNT = 64;
+    private static final int PAGE_COUNT = 16;
     private static final int WORD_SIZE = 4;
 
-    private byte[] MEMORY = new byte[BLOCK_SIZE * PAGE_SIZE * PAGE_COUNT * WORD_SIZE];
+    private byte[] MEMORY = new byte[PAGE_SIZE * PAGE_COUNT * WORD_SIZE];
 
     public void setZF(){
         CMP |= (1 << 6);
