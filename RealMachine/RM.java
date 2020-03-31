@@ -23,6 +23,18 @@ public class RM {
 
     private byte[] MEMORY = new byte[PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT * WORD_SIZE];
 
+    // Physiscal įrenginiai
+    public static HDD hdd;
+
+    static{
+        try {
+            hdd = new HDD();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
+
     public void setZF(){
         CMP |= (1 << 6);
     }
