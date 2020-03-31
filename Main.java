@@ -1,6 +1,7 @@
 package MultiProgramOperatingSystem;
 
 import MultiProgramOperatingSystem.RealMachine.*;
+import MultiProgramOperatingSystem.VirtualMachine.*;
 
 public class Main {
     public static final boolean DEBUG = false;
