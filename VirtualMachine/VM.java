@@ -157,7 +157,7 @@ public class VM {
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
-            throw new Exception("Unrecognized instruction");
+            throw new Exception("Unrecognized instruction's opcode: " + op);
     }
     public void setZF(){
         CMP |= (1 << 6);
