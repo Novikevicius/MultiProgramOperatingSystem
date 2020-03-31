@@ -1,5 +1,7 @@
 package MultiProgramOperatingSystem.RealMachine;
 
+import java.io.FileNotFoundException;
+
 public class RM {
     private byte MODE;
     private int PTR;
