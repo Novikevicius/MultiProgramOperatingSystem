@@ -161,10 +161,23 @@ public class VM {
                 System.out.println("\t\t- rm 0 5");
                 System.out.println("use vm to print Virtual Memory: usage vm <start> <end>");
                 System.out.println("\t\t- vm 0 5");
+                System.out.println("use print rm to see real machine state");
+                System.out.println("\n");
+                System.out.println("use print vm to see virtual machine state");
                 System.out.println("\n");
                 return;
             }
-            if(input.contains("vm") || input.contains("rm"))
+            else if(input.equals("print rm"))
+            {
+                System.out.println(rm.toString());
+                return;
+            }
+            else if(input.equals("print vm"))
+            {
+                printRegisters();
+                return;
+            }
+            else if(input.contains("vm") || input.contains("rm"))
             {
                 try
                 {
