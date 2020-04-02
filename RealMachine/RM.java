@@ -16,6 +16,8 @@ public class RM {
     private byte CMP;
     private byte IO;
     private int TI;
+    private byte LCK;
+    private int SHR = -1;
     private static byte CH1; // - HDD
     private static byte CH2; // - Flash Memory
     private static byte CH3; // - Printer
@@ -24,6 +26,7 @@ public class RM {
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
     public static final int MAX_VM_COUNT = 64;
     public static final int WORD_SIZE = 4;
+    public static final int SHARED_MEMORY_SEGMENT = 0x0D;
 
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
     private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
@@ -59,9 +62,16 @@ public class RM {
             block = r.nextInt(range);
             while(allocatedMemory.get(block) != null)
                 block = r.nextInt(range);
+            if(i >= SHARED_MEMORY_SEGMENT * PAGE_SIZE && getSHR() != -1)
+            {
+                setPTE(i, getSHR());   // virtual memory at page i create page table entry in real memory
+                continue;
+            }
             allocatedMemory.put(block, i);
             setPTE(i, block);   // virtual memory at page i create page table entry in real memory
         }
+        if(getSHR() == -1)
+            setSHR(virtualToRealAddress(0x0D, 0));
         printPageTable(); // some debug info about Page Table
         setWord(15, 5, 10); // test if the correct word in RAM is set
         System.out.println(getPageTableAddress());
@@ -153,6 +163,18 @@ public class RM {
         PTR = (page << 8) | offset;
     }
 
+    public byte getLCK(){
+        return LCK;
+    }
+    public void setLCK(byte v){
+        LCK = v;
+    }
+    public int getSHR(){
+        return SHR;
+    }
+    public void setSHR(int v){
+        SHR = v;
+    }
     public byte getCMP(){
         return CMP;
     }
