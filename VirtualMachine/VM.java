@@ -214,9 +214,9 @@ public class VM {
             SW2();
         else if (op == Instruction.SW3.getOpcode())
             SW3();
-        /*else if (op == Instruction.JMP.getOpcode())
+        else if (op == Instruction.JMP.getOpcode())
             JMP();
-        else if (op == Instruction.JE.getOpcode())
+        /*else if (op == Instruction.JE.getOpcode())
             JE();*/
         else if (op == Instruction.HALT.getOpcode())
             HALT();
@@ -371,16 +371,14 @@ public class VM {
     public void HALT() throws Exception {
         throw new Exception("HALT");
     }
-    /*
     public void JMP() {
-        //writeWord(address, word);
         int x1 = readWord(getIC());
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
         setIC(PAGE_SIZE*x1 + x2);
     }
-    public void JE() {
+    /*public void JE() {
         int x1 = readWord(getIC());
         incrementIC();
         int x2 = readWord(getIC());
