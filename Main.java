@@ -30,6 +30,5 @@ public class Main {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        System.out.println("Man reik daryt Lygiagrecius!");
     }
 }

@@ -19,6 +19,8 @@ public class VM {
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
+
+    private int[] asciiValues;
     
     private RM rm;
     public VM(RM rm) {
@@ -60,6 +62,21 @@ public class VM {
         int offset = address - page * PAGE_SIZE;
         writeWord(page, offset, word);
     }
+    /*
+    public void writeWord(int address, String word)
+    {
+        if(address < 0 || address >= MEMORY_SIZE)
+            return;
+        asciiValues = new int[word.length()];
+        for(int i=0; i < word.length(); i++){
+            char c = name.charAt(i);
+            asciiValues[i] = (int)c;
+        }
+        for(int el: asciiValues){
+            System.out.print(el+ " ");
+        }
+        
+    }*/
     public void writeWord(int page, int offset, int word)
     {
         if(page < 0 || page >= PAGE_COUNT || offset < 0 || offset >= PAGE_SIZE)
@@ -119,10 +136,15 @@ public class VM {
                 else if(state.equals("CODE"))
                 {
                     Instruction instr = Instruction.getInstructionByName(currentLine);
-                    writeWord(offset++, instr.getOpcode());
-                    for (int i = 0; i < instr.getArgCount(); i++){
-                        writeWord(offset++, Integer.parseInt(split[i+1]));
-                    }
+                   /* if(instr.getOpcode() == Instruction.JMP.getOpcode())
+                    {
+                        writeWord(offset++, String.parseString(split[1]));
+                    } else{*/
+                        writeWord(offset++, instr.getOpcode());
+                        for (int i = 0; i < instr.getArgCount(); i++){
+                            writeWord(offset++, Integer.parseInt(split[i+1]));
+                        }
+                   // }
                 }
             }
         }
@@ -159,6 +181,10 @@ public class VM {
             SW2();
         else if (op == Instruction.SW3.getOpcode())
             SW3();
+        /*else if (op == Instruction.JMP.getOpcode())
+            JMP();
+        else if (op == Instruction.JE.getOpcode())
+            JE();*/
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -228,7 +254,6 @@ public class VM {
     public void incrementIC(){
         setIC(getIC()+1);
     }
-
 
     // VM instructions
     // Arithemtic
@@ -313,4 +338,22 @@ public class VM {
     public void HALT() throws Exception {
         throw new Exception("HALT");
     }
+    /*
+    public void JMP() {
+        //writeWord(address, word);
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        setIC(PAGE_SIZE*x1 + x2);
+    }
+    public void JE() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        if(getZF() == 1){
+            setIC(PAGE_SIZE*x1 + x2);
+        }
+    }*/
 }

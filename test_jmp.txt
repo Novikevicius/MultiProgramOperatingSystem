@@ -1,0 +1,11 @@
+DATA
+DW 2
+DW 3
+DW -1
+CODE
+JMP opa
+LW1 0 0
+LW2 0 1
+ADD
+opa:
+HALT
