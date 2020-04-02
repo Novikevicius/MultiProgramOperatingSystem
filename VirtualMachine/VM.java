@@ -3,8 +3,10 @@ package MultiProgramOperatingSystem.VirtualMachine;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import MultiProgramOperatingSystem.Main;
+import MultiProgramOperatingSystem.RealMachine.*;
 
 public class VM {
     private int IC;
@@ -15,22 +17,21 @@ public class VM {
 
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT = 16;
-    private static final int WORD_SIZE = 4;
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
-    private int[] MEMORY = new int[MEMORY_SIZE];
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
 
     private int[] asciiValues;
     
+    private RM rm;
+    public VM(RM rm) {
+        this.rm = rm;
+    }
     public void printRegisters()
     {
-        System.out.println("--------------------------");
-        System.out.println("R1: " + getR1());
-        System.out.println("R2: " + getR2());
-        System.out.println("R3: " + getR3());
-        System.out.println("IC: " + getIC());
-        System.out.println("CMP: " + CMP);
+        System.out.println("-----------VM-------------");
+        System.out.println("R1: " + getR1() + "\t R2: " + getR2() + "\t R3: " + getR3());
+        System.out.println("IC: " + getIC() + "\t CMP: " + CMP);
         System.out.println("--------------------------");
     }
     public void runProgram() throws Exception {
@@ -58,7 +59,9 @@ public class VM {
     {
         if(address < 0 || address >= MEMORY_SIZE)
             return;
-        MEMORY[address] = word;
+        int page = address / PAGE_SIZE;
+        int offset = address - page * PAGE_SIZE;
+        writeWord(page, offset, word);
     }
     /*
     public void writeWord(int address, String word)
@@ -77,14 +80,17 @@ public class VM {
     }*/
     public void writeWord(int page, int offset, int word)
     {
-        int address = page * PAGE_SIZE + offset;
-        writeWord(address, word);
+        if(page < 0 || page >= PAGE_COUNT || offset < 0 || offset >= PAGE_SIZE)
+            return;
+        rm.setWord(page, offset, word);
     }
     public int readWord(int address)
     {
         if(address < 0 || address >= MEMORY_SIZE)
             return -1;
-        return MEMORY[address];
+        int page = address / PAGE_SIZE;
+        int offset = address - page * PAGE_SIZE;
+        return rm.getWord(page, offset);
     }
     public int readWord(int page, int offset)
     {
@@ -149,13 +155,45 @@ public class VM {
         }
     }
     public void executeInstruction() throws Exception {
-        int op = MEMORY[getIC()];
-        incrementIC();
+        int op = readWord(getIC());
         if(Main.DEBUG)
         {
-            System.out.println("Executing " + op);
-            printRegisters();
+            System.out.println("Press ENTER to execute instruction: " + op);
+            System.out.println("Enter help for more debug commands");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
+            String input = reader.readLine();
+            if (input.equals("help"))
+            {
+                System.out.println("use rm to print Real Memory: usage rm <start> <end>");
+                System.out.println("\t\t- rm 0 5");
+                System.out.println("use vm to print Virtual Memory: usage vm <start> <end>");
+                System.out.println("\t\t- vm 0 5");
+                System.out.println("\n");
+                return;
+            }
+            if(input.contains("vm") || input.contains("rm"))
+            {
+                try
+                {
+                    String[] split = input.split(" ");
+                    if(split.length == 3)
+                    {
+                        int start = Integer.parseInt(split[1]);
+                        int end = Integer.parseInt(split[2]);
+                        if(input.contains("vm"))
+                            rm.printVirtualMemory(start, end);
+                        else if(input.contains("rm"))
+                            rm.printRealMemory(start, end);
+                            return;
+                    }
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
+        incrementIC();
         if(op == Instruction.ADD.getOpcode())
             ADD();
         else if (op == Instruction.SUB.getOpcode())
@@ -184,6 +222,10 @@ public class VM {
             HALT();
         else
             throw new Exception("Unrecognized instruction's opcode: " + op);
+        if(Main.DEBUG)
+        {
+            printRegisters();
+        }
     }
     public void setZF(){
         CMP |= (1 << 6);
