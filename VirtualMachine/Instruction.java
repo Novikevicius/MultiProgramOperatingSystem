@@ -17,6 +17,10 @@ public enum Instruction {
     JMP(0x0B, 2),
     WRT(0x20, 1),
     READ(0x21, 0),
+    LC(0x22, 0),
+    UL(0x23, 0),
+    SM(0x24, 2),
+    LM(0x25, 2),
     HALT(0x10);
     //JE(0x12, 2);
     private int opcode;

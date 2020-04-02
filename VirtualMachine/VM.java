@@ -14,6 +14,7 @@ public class VM {
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
+    public static final int SHARED_MEMORY_SEGMENT = 0x0D;
     
     private RM rm;
     public VM(RM rm) {
@@ -214,6 +215,14 @@ public class VM {
             WRT();
         else if (op == Instruction.READ.getOpcode())
             READ();
+        else if (op == Instruction.LC.getOpcode())
+            LC();
+        else if (op == Instruction.UL.getOpcode())
+            UL();
+        else if (op == Instruction.SM.getOpcode())
+            SM();
+        else if (op == Instruction.LM.getOpcode())
+            LM();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -393,4 +402,24 @@ public class VM {
         RM.setCH3((byte)1);
         rm.setSI((byte)1);
     }
+    public void LC() {
+        rm.setLCK((byte)1);
+    }
+    public void UL() {
+        rm.setLCK((byte)0);
+    }
+    public void LM() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
+    }    
+    public void SM() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
+    }   
 }
