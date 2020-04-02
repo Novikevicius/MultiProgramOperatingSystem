@@ -1,6 +1,8 @@
 package MultiProgramOperatingSystem.RealMachine;
 
 import java.io.FileNotFoundException;
+import java.util.HashMap;
+import java.util.Random;
 
 public class RM {
     private byte MODE;
@@ -24,8 +26,10 @@ public class RM {
     public static final int WORD_SIZE = 4;
 
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
-    private int[] MEMORY = new int[PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT];
+    private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
+    private int[] MEMORY = new int[MEMORY_SIZE];
 
+    private HashMap<Integer, Integer> allocatedMemory = new HashMap<>();
     // Physiscal įrenginiai
     public static HDD hdd;
     public static FlashMemory flashMemory;
@@ -38,7 +42,30 @@ public class RM {
             e.printStackTrace();
         }
     }
+    public void create_virtual_memory()
+    {
+        Random r = new Random(0);
+        int range = PAGE_COUNT_PER_VM * MAX_VM_COUNT;
+        int block = r.nextInt(range);
+        while(allocatedMemory.get(block) != null)
+            block = r.nextInt(range);
+        
+        setPTR(block, 0); // set page table pointer
 
+        // initialize Page Table Entries to point at different RAM pages (PTE 0 points at page 0 at RAM, PTE 1 at page 1, ..., PTE 15 - at 15)
+        for(int i = 0; i < RM.ENTRIES_PER_PAGE_TABLE; i++){
+            block = r.nextInt(range);
+            while(allocatedMemory.get(block) != null)
+                block = r.nextInt(range);
+            allocatedMemory.put(block, i);
+            setPTE(i, block);   // virtual memory at page i create page table entry in real memory
+        }
+        printPageTable(); // some debug info about Page Table
+        setWord(15, 5, 10); // test if the correct word in RAM is set
+        System.out.println(getPageTableAddress());
+        System.out.println(virtualToRealAddress(15, 5));
+        System.out.println(getWord(15, 5));
+    }
     /**
      * changes value in virtual memory which is mapped to memory in RAM
      * @param page - page number in VM
