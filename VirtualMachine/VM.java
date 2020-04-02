@@ -413,6 +413,11 @@ public class VM {
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
+        if(rm.getLCK() == 1)
+        {
+            rm.setPI((byte)3);
+            return;
+        }
         setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
     }    
     public void SM() {
@@ -420,6 +425,11 @@ public class VM {
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
+        if(rm.getLCK() == 1)
+        {
+            rm.setPI((byte)3);
+            return;
+        }
         writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
     }   
 }

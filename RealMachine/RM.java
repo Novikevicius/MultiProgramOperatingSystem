@@ -278,6 +278,15 @@ public class RM {
     }
     public void setPI(byte PI) {
         this.PI = PI;
+        if(PI == 1){
+            System.out.println("Division by 0");
+        }
+        else if(PI == 2){
+            System.out.println("Unrecognized opcode");
+        }
+        else if(PI == 3){
+            System.out.println("Memory access violation");
+        }
     }
 
     public byte getSI() {
