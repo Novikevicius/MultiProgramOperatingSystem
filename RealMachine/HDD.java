@@ -59,7 +59,7 @@ public class HDD {
         if(sector < 0 || sector > SECTORS){
             throw new IllegalArgumentException("Sector argument is illegal");
         }
-        return new String(read(sector).equals(EMPTY_SECTOR));
+        return new String(read(sector)).equals(EMPTY_SECTOR);
     }
     public static void clear(int sector){
         if(sector < 0 || sector > SECTORS){
