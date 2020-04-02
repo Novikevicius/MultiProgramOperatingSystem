@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Random;
 
+import MultiProgramOperatingSystem.VirtualMachine.VM;
+
 public class RM {
     private byte MODE;
     private int PTR;
@@ -16,6 +18,8 @@ public class RM {
     private byte CMP;
     private byte IO;
     private int TI;
+    private byte LCK;
+    private int SHR = -1;
     private static byte CH1; // - HDD
     private static byte CH2; // - Flash Memory
     private static byte CH3; // - Printer
@@ -59,9 +63,16 @@ public class RM {
             block = r.nextInt(range);
             while(allocatedMemory.get(block) != null)
                 block = r.nextInt(range);
+            if(i >= VM.SHARED_MEMORY_SEGMENT * PAGE_SIZE && getSHR() != -1)
+            {
+                setPTE(i, getSHR());   // virtual memory at page i create page table entry in real memory
+                continue;
+            }
             allocatedMemory.put(block, i);
             setPTE(i, block);   // virtual memory at page i create page table entry in real memory
         }
+        if(getSHR() == -1)
+            setSHR(virtualToRealAddress(0x0D, 0));
         printPageTable(); // some debug info about Page Table
         setWord(15, 5, 10); // test if the correct word in RAM is set
         System.out.println(getPageTableAddress());
@@ -153,6 +164,18 @@ public class RM {
         PTR = (page << 8) | offset;
     }
 
+    public byte getLCK(){
+        return LCK;
+    }
+    public void setLCK(byte v){
+        LCK = v;
+    }
+    public int getSHR(){
+        return SHR;
+    }
+    public void setSHR(int v){
+        SHR = v;
+    }
     public byte getCMP(){
         return CMP;
     }
@@ -255,6 +278,15 @@ public class RM {
     }
     public void setPI(byte PI) {
         this.PI = PI;
+        if(PI == 1){
+            System.out.println("Division by 0");
+        }
+        else if(PI == 2){
+            System.out.println("Unrecognized opcode");
+        }
+        else if(PI == 3){
+            System.out.println("Memory access violation");
+        }
     }
 
     public byte getSI() {
