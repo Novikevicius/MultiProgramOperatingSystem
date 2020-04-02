@@ -216,8 +216,12 @@ public class VM {
             SW3();
         else if (op == Instruction.JMP.getOpcode())
             JMP();
-        /*else if (op == Instruction.JE.getOpcode())
-            JE();*/
+        else if (op == Instruction.JE.getOpcode())
+            JE();
+        else if (op == Instruction.JG.getOpcode())
+            JG();
+        else if (op == Instruction.JL.getOpcode())
+            JL();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -378,13 +382,42 @@ public class VM {
         incrementIC();
         setIC(PAGE_SIZE*x1 + x2);
     }
-    /*public void JE() {
-        int x1 = readWord(getIC());
-        incrementIC();
-        int x2 = readWord(getIC());
-        incrementIC();
+    public void JE() {
+        CMP();
         if(getZF() == 1){
+            int x1 = readWord(getIC());
+            incrementIC();
+            int x2 = readWord(getIC());
+            incrementIC();
             setIC(PAGE_SIZE*x1 + x2);
         }
-    }*/
+    }
+    public void JG() {
+        CMP();
+        if(getZF() == 0 && getSF() == getOF()){
+            int x1 = readWord(getIC());
+            incrementIC();
+            int x2 = readWord(getIC());
+            incrementIC();
+            setIC(PAGE_SIZE*x1 + x2);
+        }
+    }
+    public void JL() {
+        CMP();
+        int sub = getR1()-getR2();
+        try{
+            if (((sub >> 6) & 1) == 1) {
+                setSF();
+            }
+        } catch (ArithmeticException e) {
+            setOF();
+        }
+        if(getSF() != getOF()){
+            int x1 = readWord(getIC());
+            incrementIC();
+            int x2 = readWord(getIC());
+            incrementIC();
+            setIC(PAGE_SIZE*x1 + x2);
+        }
+    }
 }

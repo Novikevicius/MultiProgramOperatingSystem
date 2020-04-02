@@ -15,6 +15,9 @@ public enum Instruction {
     SW2(0x09, 2),
     SW3(0x0A, 2),
     JMP(0x0B, 2),
+    JE(0x0C, 2),
+    JG(0x0D, 2),
+    JL(0x0E, 2),
     HALT(0x10);
     //JMP(0x11, 1),
     //JE(0x12, 2);
