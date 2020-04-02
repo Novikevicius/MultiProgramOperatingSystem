@@ -1,5 +1,7 @@
 package MultiProgramOperatingSystem.RealMachine;
 
+import java.io.FileNotFoundException;
+
 public class RM {
     private byte MODE;
     private int PTR;
@@ -12,9 +14,9 @@ public class RM {
     private byte CMP;
     private byte IO;
     private int TI;
-    private byte CH1;
-    private byte CH2;
-    private byte CH3;
+    private static byte CH1; // - HDD
+    private static byte CH2; // - Flash Memory
+    private static byte CH3; // - Printer
 
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
@@ -23,7 +25,17 @@ public class RM {
 
     private byte[] MEMORY = new byte[PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT * WORD_SIZE];
 
+    // Physiscal įrenginiai
     public static HDD hdd;
+
+    static{
+        try {
+            hdd = new HDD();
+        }
+        catch (FileNotFoundException e) {
+            e.printStackTrace();
+        }
+    }
 
     public void setZF(){
         CMP |= (1 << 6);
@@ -89,25 +101,34 @@ public class RM {
         this.IC = IC;
     }
 
-    public byte getCH1() {
+    public static byte getCH1() {
         return CH1;
     }
-    public void setCH1(byte CH1) {
-        this.CH1 = CH1;
+    public static void setCH1(byte state) {
+        channelHelper(state, "CH1:0. Supervisor-HDD channel freed",
+                "CH1:1. Supervisor-HDD channel busy - transferring data");
+        if (state == 0 || state == 1)
+            CH1 = state;
     }
 
-    public byte getCH2() {
+    public static byte getCH2() {
         return CH2;
     }
-    public void setCH2(byte CH2) {
-        this.CH2 = CH2;
+    public static void setCH2(byte state) {
+        channelHelper(state, "CH2:0. FlashMemory channel freed",
+                "CH2:1. FlashMemory channel busy - transferring data");
+        if (state == 0 || state == 1)
+            CH2 = state;
     }
 
-    public byte getCH3() {
+    public static byte getCH3() {
         return CH3;
     }
-    public void setCH3(byte CH3) {
-        this.CH3 = CH3;
+    public static void setCH3(byte state) {
+        channelHelper(state, "CH3:0. Printer channel freed",
+                "CH3:1. Printer channel busy - transferring data");
+        if (state == 0 || state == 1)
+            CH3 = state;
     }
 
     public byte getPI() {
@@ -143,5 +164,18 @@ public class RM {
     }
     public void setMODE(byte MODE) {
         this.MODE = MODE;
+    }
+
+    private static void channelHelper(byte state, String freedInterrupt, String busyInterrupt) {
+        switch (state) {
+            case 0:
+                System.out.println(freedInterrupt);
+                break;
+            case 1:
+                System.out.println(busyInterrupt);
+                break;
+            default:
+                break;
+        }
     }
 }
