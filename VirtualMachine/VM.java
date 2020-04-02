@@ -158,7 +158,7 @@ public class VM {
         int op = readWord(getIC());
         if(Main.DEBUG)
         {
-            System.out.println("Press ENTER to execute instruction: " + op);
+            System.out.println("Press ENTER to execute instruction: " + Instruction.getCommandName(op));
             System.out.println("Enter help for more debug commands");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
             String input = reader.readLine();

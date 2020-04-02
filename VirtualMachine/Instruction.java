@@ -42,4 +42,12 @@ public enum Instruction {
     public static Instruction getInstructionByName(String name){
        return Instruction.valueOf(name);
     }
+    public static String getCommandName(int op)
+    {
+        for (Instruction instruction : Instruction.values()) {
+            if(instruction.opcode == op)
+                return instruction.name();
+        }
+        return "";
+    }
 }
