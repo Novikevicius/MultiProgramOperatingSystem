@@ -28,10 +28,12 @@ public class RM {
     // Physiscal įrenginiai
     public static HDD hdd;
     public static FlashMemory flashMemory;
+    public static Printer printer;
 
     static{
         try {
             hdd = new HDD();
+            printer = new Printer();
         }
         catch (FileNotFoundException e) {
             e.printStackTrace();
