@@ -210,6 +210,10 @@ public class VM {
             JMP();
         /*else if (op == Instruction.JE.getOpcode())
             JE();*/
+        else if (op == Instruction.WRT.getOpcode())
+            WRT();
+        else if (op == Instruction.READ.getOpcode())
+            READ();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -379,4 +383,14 @@ public class VM {
             setIC(PAGE_SIZE*x1 + x2);
         }
     }*/
+    public void WRT() {
+        int x = readWord(getIC());
+        incrementIC();
+        RM.setCH2((byte)1);
+        rm.setSI((byte)1);
+    }
+    public void READ() {
+        RM.setCH3((byte)1);
+        rm.setSI((byte)1);
+    }
 }

@@ -15,8 +15,9 @@ public enum Instruction {
     SW2(0x09, 2),
     SW3(0x0A, 2),
     JMP(0x0B, 2),
+    WRT(0x20, 1),
+    READ(0x21, 0),
     HALT(0x10);
-    //JMP(0x11, 1),
     //JE(0x12, 2);
     private int opcode;
     private int args;
