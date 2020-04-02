@@ -27,6 +27,7 @@ public class RM {
 
     // Physiscal įrenginiai
     public static HDD hdd;
+    public static FlashMemory flashMemory;
 
     static{
         try {
