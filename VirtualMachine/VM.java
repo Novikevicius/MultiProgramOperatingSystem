@@ -9,19 +9,11 @@ import MultiProgramOperatingSystem.Main;
 import MultiProgramOperatingSystem.RealMachine.*;
 
 public class VM {
-    private int IC;
-    private int CMP;
-    private int R1;
-    private int R2;
-    private int R3;
-
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT = 16;
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
-
-    private int[] asciiValues;
     
     private RM rm;
     public VM(RM rm) {
@@ -31,7 +23,7 @@ public class VM {
     {
         System.out.println("-----------VM-------------");
         System.out.println("R1: " + getR1() + "\t R2: " + getR2() + "\t R3: " + getR3());
-        System.out.println("IC: " + getIC() + "\t CMP: " + CMP);
+        System.out.println("IC: " + getIC() + "\t CMP: " + rm.getCMP());
         System.out.println("--------------------------");
     }
     public void runProgram() throws Exception {
@@ -228,61 +220,61 @@ public class VM {
         }
     }
     public void setZF(){
-        CMP |= (1 << 6);
+        rm.setZF();
     }
     public void clearZF(){
-        CMP &= ~(1 << 6);
+        rm.clearZF();
     }
     public byte getZF(){
-        return (byte)((CMP >> 6) & 1);
+        return rm.getZF();
     }
 
     public void setSF(){
-        CMP |= (1 << 5);
+        rm.getZF();
     }
     public void clearSF(){
-        CMP &= ~(1 << 5);
+        rm.clearSF();
     }
     public byte getSF(){
-        return (byte)((CMP >> 5) & 1);
+        return rm.getSF();
     }
     public void setOF(){
-        CMP |= (1 << 4);
+        rm.setOF();;
     }
     public void clearOF(){
-        CMP &= ~(1 << 4);
+        rm.clearOF();
     }
     public byte getOF(){
-        return (byte)((CMP >> 4) & 1);
+        return rm.getOF();
     }
 
     public int getR1() {
-        return R1;
+        return rm.getR1();
     }
     public void setR1(int r1) {
-        R1 = r1;
+        rm.setR1(r1);;
     }
 
     public int getR2() {
-        return R2;
+        return rm.getR2();
     }
     public void setR2(int r2) {
-        R2 = r2;
+        rm.setR2(r2);;
     }
 
     public int getR3() {
-        return R3;
+        return rm.getR3();
     }
     public void setR3(int r3) {
-        R3 = r3;
+        rm.setR3(r3);;
     }
 
     
     public int getIC() {
-        return IC;
+        return rm.getIC();
     }
     public void setIC(int ic) {
-        IC = ic;
+        rm.setIC(ic);;
     }
     public void incrementIC(){
         setIC(getIC()+1);

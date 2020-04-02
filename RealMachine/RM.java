@@ -153,6 +153,9 @@ public class RM {
         PTR = (page << 8) | offset;
     }
 
+    public byte getCMP(){
+        return CMP;
+    }
     public void setZF(){
         CMP |= (1 << 6);
     }
