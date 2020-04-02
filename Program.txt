@@ -1,6 +1,6 @@
 DATA
 DW 2
-DW 3
+DW 5
 DW -1
 CODE
 LW1 0 0
@@ -12,6 +12,7 @@ UL
 LW1 0 1
 LM 0 0
 JMP 5 8
+JL 4 12
 SW1 0 2
 READ
 WRT 5
