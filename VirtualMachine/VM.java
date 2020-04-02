@@ -247,7 +247,7 @@ public class VM {
     }
 
     public void setSF(){
-        rm.getZF();
+        rm.setSF();
     }
     public void clearSF(){
         rm.clearSF();
@@ -302,31 +302,40 @@ public class VM {
     public void ADD() {
         try {
             setR1(Math.addExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
         }
     }
     public void SUB() {
         try {
             setR1(Math.subtractExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
         }
     }
     public void MUL() {
         try {
             setR1(Math.multiplyExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
         }
     }
     public void CMP() {
@@ -388,7 +397,6 @@ public class VM {
         setIC(PAGE_SIZE*x1 + x2);
     }
     public void JE() {
-        CMP();
         if(getZF() == 1){
             int x1 = readWord(getIC());
             incrementIC();
@@ -398,7 +406,6 @@ public class VM {
         }
     }
     public void JG() {
-        CMP();
         if(getZF() == 0 && getSF() == getOF()){
             int x1 = readWord(getIC());
             incrementIC();
@@ -408,20 +415,11 @@ public class VM {
         }
     }
     public void JL() {
-        CMP();
-        int sub = getR1()-getR2();
-        try{
-            if (((sub >> 6) & 1) == 1) {
-                setSF();
-            }
-        } catch (ArithmeticException e) {
-            setOF();
-        }
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
         if(getSF() != getOF()){
-            int x1 = readWord(getIC());
-            incrementIC();
-            int x2 = readWord(getIC());
-            incrementIC();
             setIC(PAGE_SIZE*x1 + x2);
         }
     }
