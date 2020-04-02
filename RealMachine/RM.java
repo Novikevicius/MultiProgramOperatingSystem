@@ -106,6 +106,26 @@ public class RM {
         }
         System.out.println( "-------------------------------------");
     }
+    public void printVirtualMemory(int start, int end)
+    {
+        if(start < 0 || start > end || end < 0 || end > PAGE_COUNT_PER_VM * PAGE_SIZE)
+            return;
+        for(int i = start; i <= end; i++)
+        {
+            int page = i / PAGE_SIZE;
+            int offset = i - page * PAGE_SIZE;
+            System.out.println(i + ": " + getWord(page, offset));
+        }
+    }
+    public void printRealMemory(int start, int end)
+    {
+        if(start < 0 || start > end || end < 0 || end > MEMORY_SIZE)
+            return;
+        for(int i = start; i <= end; i++)
+        {
+            System.out.println(i + ": " + MEMORY[i]);
+        }
+    }
     // set Page Table Entry
     /***
      * maps page in Virtual memory to Page in RAM

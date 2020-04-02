@@ -3,6 +3,7 @@ package MultiProgramOperatingSystem.VirtualMachine;
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
+import java.io.InputStreamReader;
 
 import MultiProgramOperatingSystem.Main;
 import MultiProgramOperatingSystem.RealMachine.*;
@@ -158,7 +159,39 @@ public class VM {
         if(Main.DEBUG)
         {
             System.out.println("Press ENTER to execute instruction: " + op);
-            if(System.in.read() == 10) System.in.read();
+            System.out.println("Enter help for more debug commands");
+            BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
+            String input = reader.readLine();
+            if (input.equals("help"))
+            {
+                System.out.println("use rm to print Real Memory: usage rm <start> <end>");
+                System.out.println("\t\t- rm 0 5");
+                System.out.println("use vm to print Virtual Memory: usage vm <start> <end>");
+                System.out.println("\t\t- vm 0 5");
+                System.out.println("\n");
+                return;
+            }
+            if(input.contains("vm") || input.contains("rm"))
+            {
+                try
+                {
+                    String[] split = input.split(" ");
+                    if(split.length == 3)
+                    {
+                        int start = Integer.parseInt(split[1]);
+                        int end = Integer.parseInt(split[2]);
+                        if(input.contains("vm"))
+                            rm.printVirtualMemory(start, end);
+                        else if(input.contains("rm"))
+                            rm.printRealMemory(start, end);
+                            return;
+                    }
+                }
+                catch(Exception e)
+                {
+                    e.printStackTrace();
+                }
+            }
         }
         incrementIC();
         if(op == Instruction.ADD.getOpcode())
