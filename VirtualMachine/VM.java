@@ -60,6 +60,7 @@ public class VM {
             return;
         MEMORY[address] = word;
     }
+    /*
     public void writeWord(int address, String word)
     {
         if(address < 0 || address >= MEMORY_SIZE)
@@ -73,7 +74,7 @@ public class VM {
             System.out.print(el+ " ");
         }
         
-    }
+    }*/
     public void writeWord(int page, int offset, int word)
     {
         int address = page * PAGE_SIZE + offset;
@@ -130,15 +131,15 @@ public class VM {
                 else if(state.equals("CODE"))
                 {
                     Instruction instr = Instruction.getInstructionByName(currentLine);
-                    if(instr.getOpcode() == Instruction.JMP.getOpcode())
+                   /* if(instr.getOpcode() == Instruction.JMP.getOpcode())
                     {
                         writeWord(offset++, String.parseString(split[1]));
-                    } else{
+                    } else{*/
                         writeWord(offset++, instr.getOpcode());
                         for (int i = 0; i < instr.getArgCount(); i++){
                             writeWord(offset++, Integer.parseInt(split[i+1]));
                         }
-                    }
+                   // }
                 }
             }
         }
@@ -175,10 +176,10 @@ public class VM {
             SW2();
         else if (op == Instruction.SW3.getOpcode())
             SW3();
-        else if (op == Instruction.JMP.getOpcode())
+        /*else if (op == Instruction.JMP.getOpcode())
             JMP();
         else if (op == Instruction.JE.getOpcode())
-            JE();
+            JE();*/
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
@@ -328,6 +329,7 @@ public class VM {
     public void HALT() throws Exception {
         throw new Exception("HALT");
     }
+    /*
     public void JMP() {
         //writeWord(address, word);
         int x1 = readWord(getIC());
@@ -344,5 +346,5 @@ public class VM {
         if(getZF() == 1){
             setIC(PAGE_SIZE*x1 + x2);
         }
-    }
+    }*/
 }
