@@ -69,7 +69,7 @@ public class RM {
         while(allocatedMemory.get(block) != null)
             block = r.nextInt(range);
         
-        setPTR(block, 0); // set page table pointer
+        setPTR(block); // set page table pointer
 
         // initialize Page Table Entries to point at different RAM pages (PTE 0 points at page 0 at RAM, PTE 1 at page 1, ..., PTE 15 - at 15)
         for(int i = 0; i < RM.ENTRIES_PER_PAGE_TABLE; i++){
@@ -118,9 +118,8 @@ public class RM {
         // 0xxxxxyy
         // xxxxx - page number in RAM where the Page Table is stored
         // yy    - offset in page
-        int offset = PTR & 0xFF;
-        int page   = (PTR >> 8) & 0x03FF;  
-        return PAGE_SIZE * page + offset;
+        int page   = PTR;  
+        return PAGE_SIZE * page;
     }
     public void printPageTable()
     {
@@ -165,18 +164,6 @@ public class RM {
         int table = getPageTableAddress();
         MEMORY[table + pageInVM] = pageInRAM;
     }
-    /***
-     * change Page Table Pointer to point to actual page table at specified location in RAM
-     * @param page   - page where the Page Table is stored in RAM
-     * @param offset - offset in the page for the Page Table pointer
-     */
-    public void setPTR(int page, int offset)
-    {
-        if( page < 0 || page > 0x03FF || offset < 0 || offset >= PAGE_SIZE)
-            return;
-        PTR = (page << 8) | offset;
-    }
-
     public byte getLCK(){
         return LCK;
     }
@@ -245,8 +232,12 @@ public class RM {
     public int getPTR() {
         return PTR;
     }
-    public void setPTR(int PTR) {
-        this.PTR = PTR;
+    /***
+     * change Page Table Pointer to point to actual page table at specified location in RAM
+     * @param page   - page where the Page Table is stored in RAM
+     */
+    public void setPTR(int page) {
+        this.PTR = page;
     }
 
     public int getIC() {
