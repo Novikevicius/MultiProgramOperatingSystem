@@ -19,7 +19,8 @@ public class RM {
     private byte IO;
     private int TI;
     private byte LCK;
-    private int SHR = -1;
+    private int SHR = 0;
+    private boolean setSHR = false;
     private static byte CH1; // - HDD
     private static byte CH2; // - Flash Memory
     private static byte CH3; // - Printer
@@ -28,7 +29,7 @@ public class RM {
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
     public static final int MAX_VM_COUNT = 64;
     public static final int WORD_SIZE = 4;
-
+    
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
     private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
     private int[] MEMORY = new int[MEMORY_SIZE];
@@ -76,16 +77,19 @@ public class RM {
             block = r.nextInt(range);
             while(allocatedMemory.get(block) != null)
                 block = r.nextInt(range);
-            if(i >= VM.SHARED_MEMORY_SEGMENT * PAGE_SIZE && getSHR() != -1)
+            if(i >= 0x0D && setSHR)
             {
-                setPTE(i, getSHR());   // virtual memory at page i create page table entry in real memory
+                setPTE(i, MEMORY[getSHR() * PAGE_SIZE + (i - 0x0D)]);
                 continue;
             }
             allocatedMemory.put(block, i);
             setPTE(i, block);   // virtual memory at page i create page table entry in real memory
+            if(!setSHR && i == 0x0D)
+            {
+                setSHR(block);
+                setSHR = true;
+            }
         }
-        if(getSHR() == -1)
-            setSHR(virtualToRealAddress(0x0D, 0));
     }
     /**
      * changes value in virtual memory which is mapped to memory in RAM

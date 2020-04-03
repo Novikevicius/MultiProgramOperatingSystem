@@ -15,7 +15,7 @@ public class VM {
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
     public static final int SHARED_MEMORY_SEGMENT = 0x0D;
-    
+    private VM shrVM;
     private RM rm;
     public VM(RM rm) {
         this.rm = rm;
@@ -455,16 +455,18 @@ public class VM {
     }
     public void LC() {
         rm.setLCK((byte)1);
+        shrVM = this;
     }
     public void UL() {
         rm.setLCK((byte)0);
+        shrVM = null;
     }
     public void LM() {
         int x1 = readWord(getIC());
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
-        if(rm.getLCK() == 1)
+        if(rm.getLCK() == 1 && shrVM != this)
         {
             rm.setPI((byte)3);
             return;
@@ -476,7 +478,7 @@ public class VM {
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
-        if(rm.getLCK() == 1)
+        if(rm.getLCK() == 1 && shrVM != this)
         {
             rm.setPI((byte)3);
             return;
