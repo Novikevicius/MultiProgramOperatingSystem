@@ -4,6 +4,8 @@ import java.io.FileNotFoundException;
 import java.util.HashMap;
 import java.util.Random;
 
+import MultiProgramOperatingSystem.VirtualMachine.VM;
+
 public class RM {
     private byte MODE;
     private int PTR;
@@ -16,6 +18,9 @@ public class RM {
     private byte CMP;
     private byte IO;
     private int TI;
+    private byte LCK;
+    private int SHR = 0;
+    private boolean setSHR = false;
     private static byte CH1; // - HDD
     private static byte CH2; // - Flash Memory
     private static byte CH3; // - Printer
@@ -24,7 +29,7 @@ public class RM {
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
     public static final int MAX_VM_COUNT = 64;
     public static final int WORD_SIZE = 4;
-
+    
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
     private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
     private int[] MEMORY = new int[MEMORY_SIZE];
@@ -44,6 +49,19 @@ public class RM {
             e.printStackTrace();
         }
     }
+    @Override
+    public String toString() {
+        StringBuilder builder = new StringBuilder();
+        builder.append("--------RM--------\n");
+        builder.append("MODE: " + getMODE() + "\t\tPTR: " + getPTR() + "\tIC: " + getIC() + "\n");
+        builder.append("PI: " + getPI() + "\t\tSI: " + getSI() + "\t\tR1: " + getR1() + "\n");
+        builder.append("R2: " + getR2() + "\t\tR3: " + getR3() + "\t\tCMP: " + getCMP() + "\n");
+        builder.append("IO: " + getIO() + "\t\tTI: " + getTI() + "\t\tCH1: " + getCH1() + "\n");
+        builder.append("CH2: " + getCH3() + "\t\tCH3: " + getCH3() + "\t\tSHR: " + getSHR() + "\n");
+        builder.append("LCK: " + getLCK() + "\n");
+        builder.append("------------------\n");
+        return builder.toString();
+    }
     public void create_virtual_memory()
     {
         Random r = new Random(0);
@@ -52,21 +70,26 @@ public class RM {
         while(allocatedMemory.get(block) != null)
             block = r.nextInt(range);
         
-        setPTR(block, 0); // set page table pointer
+        setPTR(block); // set page table pointer
 
         // initialize Page Table Entries to point at different RAM pages (PTE 0 points at page 0 at RAM, PTE 1 at page 1, ..., PTE 15 - at 15)
         for(int i = 0; i < RM.ENTRIES_PER_PAGE_TABLE; i++){
             block = r.nextInt(range);
             while(allocatedMemory.get(block) != null)
                 block = r.nextInt(range);
+            if(i >= 0x0D && setSHR)
+            {
+                setPTE(i, MEMORY[getSHR() * PAGE_SIZE + (i - 0x0D)]);
+                continue;
+            }
             allocatedMemory.put(block, i);
             setPTE(i, block);   // virtual memory at page i create page table entry in real memory
+            if(!setSHR && i == 0x0D)
+            {
+                setSHR(block);
+                setSHR = true;
+            }
         }
-        printPageTable(); // some debug info about Page Table
-        setWord(15, 5, 10); // test if the correct word in RAM is set
-        System.out.println(getPageTableAddress());
-        System.out.println(virtualToRealAddress(15, 5));
-        System.out.println(getWord(15, 5));
     }
     /**
      * changes value in virtual memory which is mapped to memory in RAM
@@ -89,43 +112,47 @@ public class RM {
     }
     public int getPageTableAddress()
     {
-        // PTR:
-        // 00000000 (in hex)
-        // 0xxxxxyy
-        // xxxxx - page number in RAM where the Page Table is stored
-        // yy    - offset in page
-        int offset = PTR & 0xFF;
-        int page   = (PTR >> 8) & 0x03FF;  
-        return PAGE_SIZE * page + offset;
+        int page   = PTR;  
+        return PAGE_SIZE * page;
     }
     public void printPageTable()
     {
         int tableAddress = getPageTableAddress();
         System.out.println( "---------Page table -----------------");
         System.out.println( "PTR: " + getPTR());
+        System.out.print( (tableAddress) + ": ");
         for (int i = 0; i < ENTRIES_PER_PAGE_TABLE; i++) {
-            System.out.println( (tableAddress+i) + ": " + MEMORY[tableAddress+i]);
+            System.out.print(" " + MEMORY[tableAddress+i]);
         }
-        System.out.println( "-------------------------------------");
+        System.out.println( "\n-------------------------------------");
     }
     public void printVirtualMemory(int start, int end)
     {
-        if(start < 0 || start > end || end < 0 || end > PAGE_COUNT_PER_VM * PAGE_SIZE)
+        if(start < 0 || start > end || end < 0 || end >= PAGE_COUNT_PER_VM)
             return;
-        for(int i = start; i <= end; i++)
+        for(int page = start; page <= end; page++)
         {
-            int page = i / PAGE_SIZE;
-            int offset = i - page * PAGE_SIZE;
-            System.out.println(i + ": " + getWord(page, offset));
+            System.out.print(String.format("%-3d:", (page * PAGE_SIZE)));
+            for (int offset = 0; offset < + PAGE_SIZE; offset++ ) {
+                System.out.print(" " + getWord(page, offset));
+            }
+            System.out.print("\n");
         }
     }
     public void printRealMemory(int start, int end)
     {
-        if(start < 0 || start > end || end < 0 || end > MEMORY_SIZE)
-            return;
-        for(int i = start; i <= end; i++)
+        if(start < 0 || start > end || end < 0 || end >= MEMORY_SIZE / PAGE_SIZE)
         {
-            System.out.println(i + ": " + MEMORY[i]);
+            System.out.println("Wrong start and end page interval: min: 0 max: " + (MEMORY_SIZE / PAGE_SIZE-1) + "\n");
+            return;
+        }
+        for(int page = start; page <= end; page++)
+        {
+            System.out.print(String.format("%-3d:", (page * PAGE_SIZE)));
+            for (int offset = 0; offset < + PAGE_SIZE; offset++ ) {
+                System.out.print(" " + MEMORY[page * PAGE_SIZE + offset]);
+            }
+            System.out.print("\n");
         }
     }
     // set Page Table Entry
@@ -141,23 +168,57 @@ public class RM {
         int table = getPageTableAddress();
         MEMORY[table + pageInVM] = pageInRAM;
     }
-    /***
-     * change Page Table Pointer to point to actual page table at specified location in RAM
-     * @param page   - page where the Page Table is stored in RAM
-     * @param offset - offset in the page for the Page Table pointer
-     */
-    public void setPTR(int page, int offset)
+    public void printRegChange(String reg, int old, int n)
     {
-        if( page < 0 || page > 0x03FF || offset < 0 || offset >= PAGE_SIZE)
-            return;
-        PTR = (page << 8) | offset;
+        System.out.println(reg + ": " + old + " -> " + n);
     }
+    public void test(){
+        if(getSI() + getPI() > 0)
+        {
+            System.out.println("Interrupt detected...");
+            if(getSI() == 1)
+            {
+                
+            }
+            else if(getSI() == 2)
+            {
+                StringBuilder bd = new StringBuilder();
+                for (int offset = 0; offset < PAGE_SIZE; offset++)
+                {
+                    bd.append((char)getWord(VM.printerPage, offset));
+                }
+                Printer.print(bd.toString().toCharArray());
+            }
+            setSI((byte)0);
+            setPI((byte)0);
+        }
 
+
+    }
+    public byte getLCK(){
+        return LCK;
+    }
+    public void setLCK(byte v){
+        printRegChange("LCK", LCK, v);
+        LCK = v;
+    }
+    public int getSHR(){
+        return SHR;
+    }
+    public void setSHR(int v){
+        printRegChange("SHR", SHR, v);
+        SHR = v;
+    }
+    public byte getCMP(){
+        return CMP;
+    }
     public void setZF(){
         CMP |= (1 << 6);
+        printRegChange("ZF", getZF(), 1);
     }
     public void clearZF(){
         CMP &= ~(1 << 6);
+        printRegChange("ZF", getZF(), 0);
     }
     public byte getZF(){
         return (byte)((CMP >> 6) & 1);
@@ -165,18 +226,22 @@ public class RM {
 
     public void setSF(){
         CMP |= (1 << 5);
+        printRegChange("SF", getSF(), 1);
     }
     public void clearSF(){
         CMP &= ~(1 << 5);
+        printRegChange("SF", getZF(), 0);
     }
     public byte getSF(){
         return (byte)((CMP >> 5) & 1);
     }
     public void setOF(){
         CMP |= (1 << 4);
+        printRegChange("OF", getOF(), 1);
     }
     public void clearOF(){
         CMP &= ~(1 << 4);
+        printRegChange("OF", getOF(), 0);
     }
     public byte getOF(){
         return (byte)((CMP >> 4) & 1);
@@ -186,6 +251,7 @@ public class RM {
         return R1;
     }
     public void setR1(int r1) {
+        printRegChange("R1", getR1(), r1);
         R1 = r1;
     }
 
@@ -193,6 +259,7 @@ public class RM {
         return R2;
     }
     public void setR2(int r2) {
+        printRegChange("R2", getR2(), r2);
         R2 = r2;
     }
 
@@ -200,14 +267,19 @@ public class RM {
         return R3;
     }
     public void setR3(int r3) {
+        printRegChange("R3", getR3(), r3);
         R3 = r3;
     }
 
     public int getPTR() {
         return PTR;
     }
-    public void setPTR(int PTR) {
-        this.PTR = PTR;
+    /***
+     * change Page Table Pointer to point to actual page table at specified location in RAM
+     * @param page   - page where the Page Table is stored in RAM
+     */
+    public void setPTR(int page) {
+        this.PTR = page;
     }
 
     public int getIC() {
@@ -252,12 +324,22 @@ public class RM {
     }
     public void setPI(byte PI) {
         this.PI = PI;
+        if(PI == 1){
+            System.out.println("Division by 0");
+        }
+        else if(PI == 2){
+            System.out.println("Unrecognized opcode");
+        }
+        else if(PI == 3){
+            System.out.println("Memory access violation");
+        }
     }
 
     public byte getSI() {
         return SI;
     }
     public void setSI(byte SI) {
+        printRegChange("SI", getSI(), SI);
         this.SI = SI;
     }
 
@@ -272,6 +354,7 @@ public class RM {
         return IO;
     }
     public void setIOI(byte IO) {
+        printRegChange("IO", getIO(), IO);
         this.IO = IO;
     }
 
@@ -279,6 +362,7 @@ public class RM {
         return MODE;
     }
     public void setMODE(byte MODE) {
+        printRegChange("MODE", getMODE(), MODE);
         this.MODE = MODE;
     }
 

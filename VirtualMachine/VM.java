@@ -9,20 +9,14 @@ import MultiProgramOperatingSystem.Main;
 import MultiProgramOperatingSystem.RealMachine.*;
 
 public class VM {
-    private int IC;
-    private int CMP;
-    private int R1;
-    private int R2;
-    private int R3;
-
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT = 16;
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
-
-    private int[] asciiValues;
-    
+    public static final int SHARED_MEMORY_SEGMENT = 0x0D;
+    public static int printerPage;
+    private VM shrVM;
     private RM rm;
     public VM(RM rm) {
         this.rm = rm;
@@ -31,7 +25,7 @@ public class VM {
     {
         System.out.println("-----------VM-------------");
         System.out.println("R1: " + getR1() + "\t R2: " + getR2() + "\t R3: " + getR3());
-        System.out.println("IC: " + getIC() + "\t CMP: " + CMP);
+        System.out.println("IC: " + getIC() + "\t CMP: " + rm.getCMP());
         System.out.println("--------------------------");
     }
     public void runProgram() throws Exception {
@@ -41,6 +35,7 @@ public class VM {
             while (true)
             {
                 executeInstruction();
+                rm.test();
             }
         }
         catch(IOException ioe)
@@ -158,20 +153,40 @@ public class VM {
         int op = readWord(getIC());
         if(Main.DEBUG)
         {
-            System.out.println("Press ENTER to execute instruction: " + op);
+            System.out.println("Press ENTER to execute instruction: " + Instruction.getCommandName(op));
             System.out.println("Enter help for more debug commands");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
             String input = reader.readLine();
             if (input.equals("help"))
             {
-                System.out.println("use rm to print Real Memory: usage rm <start> <end>");
+                System.out.println("use <rm >to print Real Memory: usage rm <start> <end>");
                 System.out.println("\t\t- rm 0 5");
-                System.out.println("use vm to print Virtual Memory: usage vm <start> <end>");
+                System.out.println("use <vm> to print Virtual Memory: usage vm <start> <end>");
                 System.out.println("\t\t- vm 0 5");
+                System.out.println("use <print rm> to see real machine state");
+                System.out.println("\n");
+                System.out.println("use <print vm> to see virtual machine state");
+                System.out.println("\n");
+                System.out.println("use <pt> to see page table");
                 System.out.println("\n");
                 return;
             }
-            if(input.contains("vm") || input.contains("rm"))
+            else if(input.equals("print rm"))
+            {
+                System.out.println(rm.toString());
+                return;
+            }
+            else if(input.equals("print vm"))
+            {
+                printRegisters();
+                return;
+            }
+            else if(input.equals("pt"))
+            {
+                rm.printPageTable();
+                return;
+            }
+            else if(input.contains("vm") || input.contains("rm"))
             {
                 try
                 {
@@ -214,75 +229,91 @@ public class VM {
             SW2();
         else if (op == Instruction.SW3.getOpcode())
             SW3();
-        /*else if (op == Instruction.JMP.getOpcode())
+        else if (op == Instruction.JMP.getOpcode())
             JMP();
         else if (op == Instruction.JE.getOpcode())
-            JE();*/
+            JE();
+        else if (op == Instruction.JG.getOpcode())
+            JG();
+        else if (op == Instruction.JL.getOpcode())
+            JL();
+        else if (op == Instruction.WRT.getOpcode())
+            WRT();
+        else if (op == Instruction.READ.getOpcode())
+            READ();
+        else if (op == Instruction.LC.getOpcode())
+            LC();
+        else if (op == Instruction.UL.getOpcode())
+            UL();
+        else if (op == Instruction.SM.getOpcode())
+            SM();
+        else if (op == Instruction.LM.getOpcode())
+            LM();
         else if (op == Instruction.HALT.getOpcode())
             HALT();
         else
             throw new Exception("Unrecognized instruction's opcode: " + op);
         if(Main.DEBUG)
         {
-            printRegisters();
+            System.out.println(rm.toString());
         }
     }
     public void setZF(){
-        CMP |= (1 << 6);
+        rm.setZF();
     }
     public void clearZF(){
-        CMP &= ~(1 << 6);
+        rm.clearZF();
     }
     public byte getZF(){
-        return (byte)((CMP >> 6) & 1);
+        return rm.getZF();
     }
 
     public void setSF(){
-        CMP |= (1 << 5);
+        rm.setSF();
     }
     public void clearSF(){
-        CMP &= ~(1 << 5);
+        rm.clearSF();
     }
     public byte getSF(){
-        return (byte)((CMP >> 5) & 1);
+        return rm.getSF();
     }
     public void setOF(){
-        CMP |= (1 << 4);
+        rm.setOF();;
     }
     public void clearOF(){
-        CMP &= ~(1 << 4);
+        rm.clearOF();
     }
     public byte getOF(){
-        return (byte)((CMP >> 4) & 1);
+        return rm.getOF();
     }
 
     public int getR1() {
-        return R1;
+        return rm.getR1();
     }
     public void setR1(int r1) {
-        R1 = r1;
+        rm.setR1(r1);;
     }
 
     public int getR2() {
-        return R2;
+        return rm.getR2();
     }
     public void setR2(int r2) {
-        R2 = r2;
+        rm.setR2(r2);;
     }
 
     public int getR3() {
-        return R3;
+        return rm.getR3();
     }
     public void setR3(int r3) {
-        R3 = r3;
+        rm.setR3(r3);;
     }
 
     
     public int getIC() {
-        return IC;
+        return rm.getIC();
     }
     public void setIC(int ic) {
-        IC = ic;
+        rm.setIC(ic);;
     }
     public void incrementIC(){
         setIC(getIC()+1);
@@ -293,31 +324,43 @@ public class VM {
     public void ADD() {
         try {
             setR1(Math.addExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void SUB() {
         try {
             setR1(Math.subtractExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void MUL() {
         try {
             setR1(Math.multiplyExact(getR1(), getR2()));
-            if (((getR1() >> 6) & 1) == 1) {
-                setSF();
-            }
         } catch (ArithmeticException e) {
             setOF();
+        }
+        finally
+        {
+            if (((getR1() >> 8) & 1) == 1) {
+                setSF();
+            }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void CMP() {
@@ -325,6 +368,7 @@ public class VM {
             setZF();
         else
             clearZF();
+        rm.setTI(rm.getTI() + 1);
     }
     public void LW1() {
         int x1 = readWord(getIC());
@@ -332,6 +376,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR1(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }    
     public void LW2() {
         int x1 = readWord(getIC());
@@ -339,6 +384,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR2(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }   
     public void LW3() {
         int x1 = readWord(getIC());
@@ -346,6 +392,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR3(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }    
     public void SW1() {
         int x1 = readWord(getIC());
@@ -353,6 +400,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR1());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void SW2() {
         int x1 = readWord(getIC());
@@ -360,6 +408,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR2());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void SW3() {
         int x1 = readWord(getIC());
@@ -367,26 +416,100 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR3());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void HALT() throws Exception {
+        rm.setSI((byte)3);
+        rm.setTI(rm.getTI() + 1);
         throw new Exception("HALT");
     }
-    /*
     public void JMP() {
-        //writeWord(address, word);
         int x1 = readWord(getIC());
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
         setIC(PAGE_SIZE*x1 + x2);
+        rm.setTI(rm.getTI() + 1);
     }
     public void JE() {
+        if(getZF() == 1){
+            int x1 = readWord(getIC());
+            incrementIC();
+            int x2 = readWord(getIC());
+            incrementIC();
+            setIC(PAGE_SIZE*x1 + x2);
+        }
+        rm.setTI(rm.getTI() + 1);
+    }
+    public void JG() {
+        if(getZF() == 0 && getSF() == getOF()){
+            int x1 = readWord(getIC());
+            incrementIC();
+            int x2 = readWord(getIC());
+            incrementIC();
+            setIC(PAGE_SIZE*x1 + x2);
+        }
+        rm.setTI(rm.getTI() + 1);
+    }
+    public void JL() {
         int x1 = readWord(getIC());
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
-        if(getZF() == 1){
+        if(getSF() != getOF()){
             setIC(PAGE_SIZE*x1 + x2);
         }
-    }*/
+        rm.setTI(rm.getTI() + 1);
+    }
+    public void WRT() {
+        int x = readWord(getIC());
+        printerPage = x;
+        incrementIC();
+        RM.setCH3((byte)1);
+        rm.setSI((byte)2);
+        rm.setMODE((byte)1);
+        rm.setTI(rm.getTI() + 3);
+    }
+    public void READ() {
+        RM.setCH2((byte)1);
+        rm.setSI((byte)1);
+        rm.setMODE((byte)1);
+        rm.setTI(rm.getTI() + 3);
+    }
+    public void LC() {
+        rm.setLCK((byte)1);
+        shrVM = this;
+        rm.setTI(rm.getTI() + 1);
+    }
+    public void UL() {
+        rm.setLCK((byte)0);
+        shrVM = null;
+        rm.setTI(rm.getTI() + 3);
+    }
+    public void LM() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        if(rm.getLCK() == 1 && shrVM != this)
+        {
+            rm.setPI((byte)3);
+            return;
+        }
+        setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
+        rm.setTI(rm.getTI() + 1);
+    }    
+    public void SM() {
+        int x1 = readWord(getIC());
+        incrementIC();
+        int x2 = readWord(getIC());
+        incrementIC();
+        if(rm.getLCK() == 1 && shrVM != this)
+        {
+            rm.setPI((byte)3);
+            return;
+        }
+        writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
+        rm.setTI(rm.getTI() + 1);
+    }   
 }
