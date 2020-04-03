@@ -157,13 +157,15 @@ public class VM {
             String input = reader.readLine();
             if (input.equals("help"))
             {
-                System.out.println("use rm to print Real Memory: usage rm <start> <end>");
+                System.out.println("use <rm >to print Real Memory: usage rm <start> <end>");
                 System.out.println("\t\t- rm 0 5");
-                System.out.println("use vm to print Virtual Memory: usage vm <start> <end>");
+                System.out.println("use <vm> to print Virtual Memory: usage vm <start> <end>");
                 System.out.println("\t\t- vm 0 5");
-                System.out.println("use print rm to see real machine state");
+                System.out.println("use <print rm> to see real machine state");
                 System.out.println("\n");
-                System.out.println("use print vm to see virtual machine state");
+                System.out.println("use <print vm> to see virtual machine state");
+                System.out.println("\n");
+                System.out.println("use <pt> to see page table");
                 System.out.println("\n");
                 return;
             }
@@ -175,6 +177,11 @@ public class VM {
             else if(input.equals("print vm"))
             {
                 printRegisters();
+                return;
+            }
+            else if(input.equals("pt"))
+            {
+                rm.printPageTable();
                 return;
             }
             else if(input.contains("vm") || input.contains("rm"))
@@ -246,7 +253,7 @@ public class VM {
             throw new Exception("Unrecognized instruction's opcode: " + op);
         if(Main.DEBUG)
         {
-            printRegisters();
+            System.out.println(rm.toString());
         }
     }
     public void setZF(){

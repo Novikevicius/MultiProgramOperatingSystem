@@ -86,11 +86,6 @@ public class RM {
         }
         if(getSHR() == -1)
             setSHR(virtualToRealAddress(0x0D, 0));
-        printPageTable(); // some debug info about Page Table
-        setWord(15, 5, 10); // test if the correct word in RAM is set
-        System.out.println(getPageTableAddress());
-        System.out.println(virtualToRealAddress(15, 5));
-        System.out.println(getWord(15, 5));
     }
     /**
      * changes value in virtual memory which is mapped to memory in RAM
@@ -126,10 +121,11 @@ public class RM {
         int tableAddress = getPageTableAddress();
         System.out.println( "---------Page table -----------------");
         System.out.println( "PTR: " + getPTR());
+        System.out.print( (tableAddress) + ": ");
         for (int i = 0; i < ENTRIES_PER_PAGE_TABLE; i++) {
-            System.out.println( (tableAddress+i) + ": " + MEMORY[tableAddress+i]);
+            System.out.print(" " + MEMORY[tableAddress+i]);
         }
-        System.out.println( "-------------------------------------");
+        System.out.println( "\n-------------------------------------");
     }
     public void printVirtualMemory(int start, int end)
     {
