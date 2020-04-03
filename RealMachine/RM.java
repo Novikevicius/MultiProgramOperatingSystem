@@ -316,6 +316,7 @@ public class RM {
         return SI;
     }
     public void setSI(byte SI) {
+        printRegChange("SI", getSI(), SI);
         this.SI = SI;
     }
 
@@ -330,6 +331,7 @@ public class RM {
         return IO;
     }
     public void setIOI(byte IO) {
+        printRegChange("IO", getIO(), IO);
         this.IO = IO;
     }
 
@@ -337,6 +339,7 @@ public class RM {
         return MODE;
     }
     public void setMODE(byte MODE) {
+        printRegChange("MODE", getMODE(), MODE);
         this.MODE = MODE;
     }
 

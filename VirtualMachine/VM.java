@@ -448,17 +448,21 @@ public class VM {
         incrementIC();
         RM.setCH2((byte)1);
         rm.setSI((byte)1);
+        rm.setMODE((byte)1);
     }
     public void READ() {
         RM.setCH3((byte)1);
         rm.setSI((byte)1);
+        rm.setMODE((byte)1);
     }
     public void LC() {
         rm.setLCK((byte)1);
+        rm.setMODE((byte)1);
         shrVM = this;
     }
     public void UL() {
         rm.setLCK((byte)0);
+        rm.setMODE((byte)1);
         shrVM = null;
     }
     public void LM() {
