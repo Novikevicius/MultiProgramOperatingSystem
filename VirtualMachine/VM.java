@@ -15,6 +15,7 @@ public class VM {
     private static final int DATA_SEGMENT_START = 0;
     private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
     public static final int SHARED_MEMORY_SEGMENT = 0x0D;
+    public static int printerPage;
     private VM shrVM;
     private RM rm;
     public VM(RM rm) {
@@ -34,6 +35,7 @@ public class VM {
             while (true)
             {
                 executeInstruction();
+                rm.test();
             }
         }
         catch(IOException ioe)
@@ -330,6 +332,7 @@ public class VM {
             if (((getR1() >> 8) & 1) == 1) {
                 setSF();
             }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void SUB() {
@@ -343,6 +346,7 @@ public class VM {
             if (((getR1() >> 8) & 1) == 1) {
                 setSF();
             }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void MUL() {
@@ -356,6 +360,7 @@ public class VM {
             if (((getR1() >> 8) & 1) == 1) {
                 setSF();
             }
+            rm.setTI(rm.getTI() + 1);
         }
     }
     public void CMP() {
@@ -363,6 +368,7 @@ public class VM {
             setZF();
         else
             clearZF();
+        rm.setTI(rm.getTI() + 1);
     }
     public void LW1() {
         int x1 = readWord(getIC());
@@ -370,6 +376,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR1(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }    
     public void LW2() {
         int x1 = readWord(getIC());
@@ -377,6 +384,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR2(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }   
     public void LW3() {
         int x1 = readWord(getIC());
@@ -384,6 +392,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setR3(readWord(x1, x2));
+        rm.setTI(rm.getTI() + 1);
     }    
     public void SW1() {
         int x1 = readWord(getIC());
@@ -391,6 +400,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR1());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void SW2() {
         int x1 = readWord(getIC());
@@ -398,6 +408,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR2());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void SW3() {
         int x1 = readWord(getIC());
@@ -405,8 +416,11 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         writeWord(x1, x2, getR3());
+        rm.setTI(rm.getTI() + 1);
     }   
     public void HALT() throws Exception {
+        rm.setSI((byte)3);
+        rm.setTI(rm.getTI() + 1);
         throw new Exception("HALT");
     }
     public void JMP() {
@@ -415,6 +429,7 @@ public class VM {
         int x2 = readWord(getIC());
         incrementIC();
         setIC(PAGE_SIZE*x1 + x2);
+        rm.setTI(rm.getTI() + 1);
     }
     public void JE() {
         if(getZF() == 1){
@@ -424,6 +439,7 @@ public class VM {
             incrementIC();
             setIC(PAGE_SIZE*x1 + x2);
         }
+        rm.setTI(rm.getTI() + 1);
     }
     public void JG() {
         if(getZF() == 0 && getSF() == getOF()){
@@ -433,6 +449,7 @@ public class VM {
             incrementIC();
             setIC(PAGE_SIZE*x1 + x2);
         }
+        rm.setTI(rm.getTI() + 1);
     }
     public void JL() {
         int x1 = readWord(getIC());
@@ -442,28 +459,32 @@ public class VM {
         if(getSF() != getOF()){
             setIC(PAGE_SIZE*x1 + x2);
         }
+        rm.setTI(rm.getTI() + 1);
     }
     public void WRT() {
         int x = readWord(getIC());
+        printerPage = x;
         incrementIC();
+        RM.setCH3((byte)1);
+        rm.setSI((byte)2);
+        rm.setMODE((byte)1);
+        rm.setTI(rm.getTI() + 3);
+    }
+    public void READ() {
         RM.setCH2((byte)1);
         rm.setSI((byte)1);
         rm.setMODE((byte)1);
-    }
-    public void READ() {
-        RM.setCH3((byte)1);
-        rm.setSI((byte)1);
-        rm.setMODE((byte)1);
+        rm.setTI(rm.getTI() + 3);
     }
     public void LC() {
         rm.setLCK((byte)1);
-        rm.setMODE((byte)1);
         shrVM = this;
+        rm.setTI(rm.getTI() + 1);
     }
     public void UL() {
         rm.setLCK((byte)0);
-        rm.setMODE((byte)1);
         shrVM = null;
+        rm.setTI(rm.getTI() + 3);
     }
     public void LM() {
         int x1 = readWord(getIC());
@@ -476,6 +497,7 @@ public class VM {
             return;
         }
         setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
+        rm.setTI(rm.getTI() + 1);
     }    
     public void SM() {
         int x1 = readWord(getIC());
@@ -488,5 +510,6 @@ public class VM {
             return;
         }
         writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
+        rm.setTI(rm.getTI() + 1);
     }   
 }

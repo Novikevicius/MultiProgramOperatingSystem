@@ -172,6 +172,29 @@ public class RM {
     {
         System.out.println(reg + ": " + old + " -> " + n);
     }
+    public void test(){
+        if(getSI() + getPI() > 0)
+        {
+            System.out.println("Interrupt detected...");
+            if(getSI() == 1)
+            {
+                
+            }
+            else if(getSI() == 2)
+            {
+                StringBuilder bd = new StringBuilder();
+                for (int offset = 0; offset < PAGE_SIZE; offset++)
+                {
+                    bd.append((char)getWord(VM.printerPage, offset));
+                }
+                Printer.print(bd.toString().toCharArray());
+            }
+            setSI((byte)0);
+            setPI((byte)0);
+        }
+
+
+    }
     public byte getLCK(){
         return LCK;
     }
