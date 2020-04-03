@@ -108,11 +108,6 @@ public class RM {
     }
     public int getPageTableAddress()
     {
-        // PTR:
-        // 00000000 (in hex)
-        // 0xxxxxyy
-        // xxxxx - page number in RAM where the Page Table is stored
-        // yy    - offset in page
         int page   = PTR;  
         return PAGE_SIZE * page;
     }
@@ -142,11 +137,18 @@ public class RM {
     }
     public void printRealMemory(int start, int end)
     {
-        if(start < 0 || start > end || end < 0 || end > MEMORY_SIZE)
-            return;
-        for(int i = start; i <= end; i++)
+        if(start < 0 || start > end || end < 0 || end >= MEMORY_SIZE / PAGE_SIZE)
         {
-            System.out.println(i + ": " + MEMORY[i]);
+            System.out.println("Wrong start and end page interval: min: 0 max: " + (MEMORY_SIZE / PAGE_SIZE-1) + "\n");
+            return;
+        }
+        for(int page = start; page <= end; page++)
+        {
+            System.out.print(String.format("%-3d:", (page * PAGE_SIZE)));
+            for (int offset = 0; offset < + PAGE_SIZE; offset++ ) {
+                System.out.print(" " + MEMORY[page * PAGE_SIZE + offset]);
+            }
+            System.out.print("\n");
         }
     }
     // set Page Table Entry
