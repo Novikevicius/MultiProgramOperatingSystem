@@ -129,13 +129,15 @@ public class RM {
     }
     public void printVirtualMemory(int start, int end)
     {
-        if(start < 0 || start > end || end < 0 || end > PAGE_COUNT_PER_VM * PAGE_SIZE)
+        if(start < 0 || start > end || end < 0 || end >= PAGE_COUNT_PER_VM)
             return;
-        for(int i = start; i <= end; i++)
+        for(int page = start; page <= end; page++)
         {
-            int page = i / PAGE_SIZE;
-            int offset = i - page * PAGE_SIZE;
-            System.out.println(i + ": " + getWord(page, offset));
+            System.out.print(String.format("%-3d:", (page * PAGE_SIZE)));
+            for (int offset = 0; offset < + PAGE_SIZE; offset++ ) {
+                System.out.print(" " + getWord(page, offset));
+            }
+            System.out.print("\n");
         }
     }
     public void printRealMemory(int start, int end)
