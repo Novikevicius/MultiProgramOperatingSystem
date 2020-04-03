@@ -168,16 +168,22 @@ public class RM {
         int table = getPageTableAddress();
         MEMORY[table + pageInVM] = pageInRAM;
     }
+    public void printRegChange(String reg, int old, int n)
+    {
+        System.out.println(reg + ": " + old + " -> " + n);
+    }
     public byte getLCK(){
         return LCK;
     }
     public void setLCK(byte v){
+        printRegChange("LCK", LCK, v);
         LCK = v;
     }
     public int getSHR(){
         return SHR;
     }
     public void setSHR(int v){
+        printRegChange("SHR", SHR, v);
         SHR = v;
     }
     public byte getCMP(){
@@ -185,9 +191,11 @@ public class RM {
     }
     public void setZF(){
         CMP |= (1 << 6);
+        printRegChange("ZF", getZF(), 1);
     }
     public void clearZF(){
         CMP &= ~(1 << 6);
+        printRegChange("ZF", getZF(), 0);
     }
     public byte getZF(){
         return (byte)((CMP >> 6) & 1);
@@ -195,18 +203,22 @@ public class RM {
 
     public void setSF(){
         CMP |= (1 << 5);
+        printRegChange("SF", getSF(), 1);
     }
     public void clearSF(){
         CMP &= ~(1 << 5);
+        printRegChange("SF", getZF(), 0);
     }
     public byte getSF(){
         return (byte)((CMP >> 5) & 1);
     }
     public void setOF(){
         CMP |= (1 << 4);
+        printRegChange("OF", getOF(), 1);
     }
     public void clearOF(){
         CMP &= ~(1 << 4);
+        printRegChange("OF", getOF(), 0);
     }
     public byte getOF(){
         return (byte)((CMP >> 4) & 1);
@@ -216,6 +228,7 @@ public class RM {
         return R1;
     }
     public void setR1(int r1) {
+        printRegChange("R1", getR1(), r1);
         R1 = r1;
     }
 
@@ -223,6 +236,7 @@ public class RM {
         return R2;
     }
     public void setR2(int r2) {
+        printRegChange("R2", getR2(), r2);
         R2 = r2;
     }
 
@@ -230,6 +244,7 @@ public class RM {
         return R3;
     }
     public void setR3(int r3) {
+        printRegChange("R3", getR3(), r3);
         R3 = r3;
     }
 
