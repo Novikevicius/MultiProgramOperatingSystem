@@ -14,9 +14,7 @@ public class Main {
         
         try {
             vm.loadProgram("MultiProgramOperatingSystem/Program.txt");
-            vm.printRegisters();
             vm.runProgram();
-            vm.printRegisters();
         } catch (Exception e) {
             e.printStackTrace();
         }
