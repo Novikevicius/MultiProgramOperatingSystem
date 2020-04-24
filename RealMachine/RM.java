@@ -27,7 +27,7 @@ public class RM {
 
     public static final int PAGE_SIZE = 16;
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
-    public static final int MAX_VM_COUNT = 64;
+    public static final int MAX_VM_COUNT = 4;
     public static final int WORD_SIZE = 4;
     
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
@@ -188,6 +188,27 @@ public class RM {
                     bd.append((char)getWord(VM.printerPage, offset));
                 }
                 Printer.print(bd.toString().toCharArray());
+            }
+            else if(getSI() == 4)
+            {
+                if(getLCK() == 0)
+                {
+                    System.out.println("Locking");
+                    setLCK((byte)1);
+                }
+                else
+                {
+                    System.out.println("Unlocking");
+                    setLCK((byte)0);
+                }
+            }
+            else if(getSI() == 4)
+            {
+                System.out.println("Reading from shared memory");
+            }
+            else if(getSI() == 5)
+            {
+                System.out.println("Writing to shared memory");
             }
             setSI((byte)0);
             setPI((byte)0);
