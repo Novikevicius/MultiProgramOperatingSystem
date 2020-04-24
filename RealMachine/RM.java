@@ -176,6 +176,7 @@ public class RM {
         if(getSI() + getPI() > 0)
         {
             System.out.println("Interrupt detected...");
+            setMODE((byte)1);
             if(getSI() == 1)
             {
                 
@@ -212,6 +213,7 @@ public class RM {
             }
             setSI((byte)0);
             setPI((byte)0);
+            setMODE((byte)0);
         }
 
 
