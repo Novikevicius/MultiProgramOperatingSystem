@@ -26,7 +26,12 @@ public abstract class Process {
         this.name = name;
         this.priority = priority;
     }
-    public abstract void run();
+    public void run()
+    {
+        execute();
+        counter += 1;
+    }
+    protected abstract void execute();
     public void changeState(State newState)
     {
         state = newState;
