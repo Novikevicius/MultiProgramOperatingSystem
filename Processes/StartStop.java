@@ -4,8 +4,8 @@ import MultiProgramOperatingSystem.MOS.Kernel;
 
 public class StartStop extends Process {
     
-    public StartStop(Kernel k){
-        super(k);
+    public StartStop(){
+        super(null, "StartStop", 10);
     }
     @Override
     public void run() {
