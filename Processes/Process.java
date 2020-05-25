@@ -36,4 +36,8 @@ public abstract class Process {
     {
         state = newState;
     }
+    @Override
+    public String toString() {
+        return name;
+    }
 }

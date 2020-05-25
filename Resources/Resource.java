@@ -3,6 +3,8 @@ package MultiProgramOperatingSystem.Resources;
 import java.util.ArrayList;
 import java.util.HashMap;
 
+import MultiProgramOperatingSystem.Processes.Process;
+
 public abstract class Resource {
     private static int IDs = 0;
     protected int id;
@@ -22,5 +24,9 @@ public abstract class Resource {
     }
     public void requestResource(Process process, int count){
         waitingProcesses.put(process, count);
+    }
+    @Override
+    public String toString() {
+        return name;
     }
 }
