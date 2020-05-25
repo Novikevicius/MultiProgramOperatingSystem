@@ -19,4 +19,17 @@ public class Kernel {
     public void changePriority(){
 
     }
+    
+    public void createResource(){
+
+    }
+    public void deleteResource(){
+
+    }
+    public void freeResource(){
+
+    }
+    public void requestResource(){
+
+    }
 }
