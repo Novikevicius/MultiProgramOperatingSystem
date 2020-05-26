@@ -20,7 +20,7 @@ public class MainProc extends Process {
             task = (TaskParametersResource) resources.get(0);
             if(task.getEnd() == 0)
             {
-                counter = 4;
+                counter = 3;
                 return;
             }
             break;
