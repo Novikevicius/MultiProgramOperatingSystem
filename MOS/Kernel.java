@@ -1,13 +1,14 @@
 package MultiProgramOperatingSystem.MOS;
 
 import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.PriorityQueue;
 
+import MultiProgramOperatingSystem.Processes.*;
 import MultiProgramOperatingSystem.Processes.Process;
-import MultiProgramOperatingSystem.Processes.StartStop;
-import MultiProgramOperatingSystem.Processes.State;
 import MultiProgramOperatingSystem.RealMachine.RM;
-import MultiProgramOperatingSystem.Resources.Resource;
+import MultiProgramOperatingSystem.Resources.*;
 
 public class Kernel {
 
@@ -110,6 +111,7 @@ public class Kernel {
                 resource.requestResource(p, amount);
                 p.changeState(State.BLOCKED);
                 readyProcesses.remove(p);
+                break;
             }
         }
         resourceDistributor();
@@ -122,7 +124,22 @@ public class Kernel {
         for (Resource resource : resources) {
             if(resource.hasAvailableElement())
             {
-                resource.giveResource();
+                HashMap<Process, Integer> waitingProcesses = resource.getWaitingProcesses();
+                ArrayList<Resource> resourceElements = resource.getElements();
+                for (Map.Entry<Process,Integer> entry : waitingProcesses.entrySet()) {
+                    if(resourceElements.size() >= entry.getValue())
+                    {
+                        Process p = entry.getKey();
+                        for (int i = 0; i < entry.getValue(); i++) {
+                            Resource r = resourceElements.get(0);
+                            resourceElements.remove(0);
+                            p.takeResource(r);
+                        }
+                        waitingProcesses.remove(p);
+                        p.changeState(State.READY);
+                        readyProcesses.add(p);
+                    }
+                }
             }
         }
         planner();
