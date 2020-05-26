@@ -38,7 +38,19 @@ public abstract class Process {
     }
     public void destroy()
     {
-        
+        if(parent != null){
+            parent.removeChild(this);
+        }
+        for (Resource resource : resources) {
+            //kernel.freeResource(resource);
+        }
+        for (Process process : children) {
+            kernel.destroyProcess(process);
+        }
+    }
+    public void removeChild(Process p)
+    {
+        children.remove(p);
     }
     @Override
     public String toString() {
