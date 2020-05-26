@@ -56,14 +56,33 @@ public class Kernel {
         blockedProcesses.remove(process);
         System.out.println(process + " destroyed");
     }
-    public void activateProcess(){
-
+    public void activateProcess(Process p){
+        if(p.getState() == State.READY_SUSPENDED)
+        {
+            p.changeState(State.READY);
+            readyProcesses.add(p);
+        }
+        else if(p.getState() == State.BLOCKED_SUSPENDED)
+        {
+            p.changeState(State.BLOCKED);
+            blockedProcesses.add(p);
+        }
     }
-    public void stopProcess(){
-
-    }
-    public void changePriority(){
-
+    public void stopProcess(Process p){
+        if(p.getState() == State.RUNNING)
+        {
+            p.changeState(State.READY_SUSPENDED);
+        }
+        else if(p.getState() == State.READY)
+        {
+            p.changeState(State.READY_SUSPENDED);
+            readyProcesses.remove(p);
+        }
+        else if(p.getState() == State.BLOCKED)
+        {
+            p.changeState(State.BLOCKED_SUSPENDED);
+            blockedProcesses.remove(p);
+        }
     }
     public void createResource(Resource r){
         System.out.println("Creating " + r + " resource");
@@ -119,8 +138,11 @@ public class Kernel {
             }
             if(!readyProcesses.isEmpty())
             {
+                currentProcess.changeState(State.READY);
+                readyProcesses.add(currentProcess);
                 Process p = readyProcesses.poll();
                 currentProcess = p;
+                p.changeState(State.RUNNING);
                 return;
             }
         }
