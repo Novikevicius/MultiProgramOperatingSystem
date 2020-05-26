@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import MultiProgramOperatingSystem.Processes.Process;
+import MultiProgramOperatingSystem.Processes.StartStop;
 import MultiProgramOperatingSystem.Processes.State;
 import MultiProgramOperatingSystem.Resources.Resource;
 
@@ -19,7 +20,7 @@ public class Kernel {
 
 
     public void start(){
-
+        getInstance().createProcess(new StartStop());
     }
     public void createProcess(Process process){
         System.out.println("Creating " + process + " process");
