@@ -1,10 +1,14 @@
 package MultiProgramOperatingSystem.MOS;
 
+import java.io.BufferedReader;
+import java.io.IOException;
+import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
 
+import MultiProgramOperatingSystem.Main;
 import MultiProgramOperatingSystem.Processes.*;
 import MultiProgramOperatingSystem.Processes.Process;
 import MultiProgramOperatingSystem.RealMachine.RM;
@@ -23,15 +27,25 @@ public class Kernel {
     private boolean shutdown = false;
     private RM rm;
 
-    public void start(){
+    public void start() {
         System.out.println("Starting OS");
         rm = new RM();
         getInstance().createProcess(new StartStop());
         resourceDistributor();
-        while(!shutdown)
-        {
-            if(currentProcess != null)
-            {
+        while (!shutdown) {
+            if (currentProcess != null) {
+                if(Main.DEBUG)
+                {
+                    System.out.println("\tPress ENTER key to execute step " + currentProcess.getStep() + " of " + currentProcess);
+                    try {
+                        BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
+                        String input = reader.readLine();
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }else{
+                    System.out.println("\tRunning " + currentProcess + ": step " + currentProcess.getStep());
+                }
                 currentProcess.run();
             }
             else
@@ -39,18 +53,17 @@ public class Kernel {
                 break;
             }
         }
+        destroyProcess(processes.get(0));
         System.out.println("Shutting down OS");
 
     }
     public void createProcess(Process process){
-        System.out.println("Creating " + process + " process");
         processes.add(process);
         readyProcesses.add(process);
         process.changeState(State.READY);
         System.out.println(process + " created");
     }
     public void destroyProcess(Process process){
-        System.out.println("Destroying " + process + " process");
         process.destroy();
         processes.remove(process);
         readyProcesses.remove(process);
@@ -86,14 +99,17 @@ public class Kernel {
         }
     }
     public void createResource(Resource r){
-        System.out.println("Creating " + r + " resource");
         resources.add(r);
         System.out.println(r + " resource created");
     }
     public void deleteResource(Resource r){
-        System.out.println("Deleting " + r + " resource");
         resources.remove(r);
         System.out.println(r + " resource deleted");
+    }
+    public void deleteResources(){
+        while(resources.size() > 0) {
+            deleteResource(resources.get(resources.size()-1));
+        }
     }
     public void freeResource(Resource r){
         for (Resource resource : resources) {
@@ -136,6 +152,7 @@ public class Kernel {
                             p.takeResource(r);
                         }
                         waitingProcesses.remove(p);
+                        blockedProcesses.remove(p);
                         p.changeState(State.READY);
                         readyProcesses.add(p);
                     }
@@ -162,6 +179,10 @@ public class Kernel {
             }
         }
         currentProcess = readyProcesses.poll();
+    }
+    public void shutdownOS()
+    {
+        shutdown = true;
     }
     public RM getRM()
     {
