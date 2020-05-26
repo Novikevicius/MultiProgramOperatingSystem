@@ -39,7 +39,10 @@ public class RM {
     public static HDD hdd;
     public static FlashMemory flashMemory;
     public static Printer printer;
-
+    public static final int SUPERVISOR_MEMORY_START = 0;
+    public static final int SUPERVISOR_MEMORY_END = 100;
+    public static final int MEMORY_START = 100;
+    public static final int MEMORY_END = MEMORY_SIZE;
     static{
         try {
             hdd = new HDD();
@@ -100,6 +103,14 @@ public class RM {
     public void setWord(int page, int offset, int value)
     {
         MEMORY[virtualToRealAddress(page, offset)] = value;
+    }
+    public void setWordAtMemory(int page, int offset, int value)
+    {
+        MEMORY[page * PAGE_SIZE + offset] = value;
+    } 
+    public int getWordAtMemory(int page, int offset)
+    {
+        return MEMORY[page * PAGE_SIZE + offset];
     }
     public int getWord(int page, int offset)
     {
