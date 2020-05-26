@@ -104,6 +104,10 @@ public class RM {
     {
         MEMORY[virtualToRealAddress(page, offset)] = value;
     }
+    public void setWordAtMemory(int page, int offset, int value)
+    {
+        MEMORY[page * PAGE_SIZE + offset] = value;
+    }
     public int getWord(int page, int offset)
     {
         return MEMORY[virtualToRealAddress(page, offset)];
