@@ -59,6 +59,10 @@ public abstract class Process implements Comparable{
     {
         children.remove(p);
     }
+    public int getStep()
+    {
+        return counter + 1;
+    }
     @Override
     public int compareTo(Object o) {
         return ((Integer)(((Process) o).priority)).compareTo(((Integer)this.priority));
