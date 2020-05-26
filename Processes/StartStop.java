@@ -20,6 +20,7 @@ public class StartStop extends Process {
             
             case 1:
             kernel.createProcess(new ReadFromFlash(this));
+            kernel.createProcess(new JCL(this));
             break;
 
             case 2:
