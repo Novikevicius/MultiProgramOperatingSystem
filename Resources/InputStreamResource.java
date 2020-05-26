@@ -8,7 +8,7 @@ public class InputStreamResource extends Resource {
         super("InputStreamResource", creator);
         resourceElements.add(new InputStreamResource());
     }
-    private InputStreamResource(){
+    public InputStreamResource(){
         super("InputStreamResource", null);
     }
 
