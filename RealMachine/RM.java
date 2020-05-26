@@ -107,6 +107,10 @@ public class RM {
     public void setWordAtMemory(int page, int offset, int value)
     {
         MEMORY[page * PAGE_SIZE + offset] = value;
+    } 
+    public int getWordAtMemory(int page, int offset)
+    {
+        return MEMORY[page * PAGE_SIZE + offset];
     }
     public int getWord(int page, int offset)
     {
