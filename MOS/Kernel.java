@@ -163,6 +163,10 @@ public class Kernel {
         }
         currentProcess = readyProcesses.poll();
     }
+    public void shutdownOS()
+    {
+        shutdown = true;
+    }
     public RM getRM()
     {
         return rm;

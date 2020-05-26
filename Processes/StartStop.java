@@ -28,6 +28,16 @@ public class StartStop extends Process {
             case 2:
             kernel.requestResource(this, new MOSFinal(this));
             break;
+            
+            case 3:
+            for (Process process : children) {
+                kernel.destroyProcess(process);
+            }
+            for (Resource resource : resources) {
+                kernel.deleteResource(resource);
+            }
+            kernel.shutdownOS();
+            break;
         default:
             System.out.println("Unrecognized step for " + this + ": " + counter);
             break;
