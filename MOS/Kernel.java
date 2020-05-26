@@ -65,7 +65,6 @@ public class Kernel {
     public void changePriority(){
 
     }
-    
     public void createResource(Resource r){
         System.out.println("Creating " + r + " resource");
         resources.add(r);
@@ -85,16 +84,19 @@ public class Kernel {
         }
         resourceDistributor();
     }
-    public void requestResource(Process p, Resource r){
+    public void requestResource(Process p, Resource r, int amount){
         for (Resource resource : resources) {
             if(resource.getClass().equals(r.getClass()))
             {
-                resource.requestResource(p, 1);
+                resource.requestResource(p, amount);
                 p.changeState(State.BLOCKED);
                 readyProcesses.remove(p);
             }
         }
         resourceDistributor();
+    }
+    public void requestResource(Process p, Resource r){
+        requestResource(p, r, 1);
     }
     private void resourceDistributor()
     {
