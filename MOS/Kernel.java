@@ -46,11 +46,15 @@ public class Kernel {
 
     }
     
-    public void createResource(){
-
+    public void createResource(Resource r){
+        System.out.println("Creating " + r + " resource");
+        resources.add(r);
+        System.out.println(r + " resource created");
     }
-    public void deleteResource(){
-
+    public void deleteResource(Resource r){
+        System.out.println("Deleting " + r + " resource");
+        resources.remove(r);
+        System.out.println(r + " resource deleted");
     }
     public void freeResource(){
 
