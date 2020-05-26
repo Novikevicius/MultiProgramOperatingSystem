@@ -22,7 +22,7 @@ public class JCL extends Process {
             break;
 
             case 2:
-            //kernel.freeResource(new TaskParametersResource());
+            kernel.freeResource(new TaskParametersResource(this, 1));
             counter = -1;
             break;
 

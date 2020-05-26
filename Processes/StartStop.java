@@ -16,6 +16,7 @@ public class StartStop extends Process {
             kernel.createResource(new SupervisorMemoryResource(this));
             kernel.createResource(new MemoryResource(this));
             kernel.createResource(new TaskInMemoryResource(this));
+            kernel.createResource(new TaskParametersResource(this));
             break;
             
             case 1:
