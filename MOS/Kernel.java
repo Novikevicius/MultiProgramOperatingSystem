@@ -155,8 +155,6 @@ public class Kernel {
             }
             if(!readyProcesses.isEmpty())
             {
-                currentProcess.changeState(State.READY);
-                readyProcesses.add(currentProcess);
                 Process p = readyProcesses.poll();
                 currentProcess = p;
                 p.changeState(State.RUNNING);
