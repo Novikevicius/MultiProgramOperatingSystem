@@ -5,7 +5,7 @@ import java.util.ArrayList;
 import MultiProgramOperatingSystem.MOS.Kernel;
 import MultiProgramOperatingSystem.Resources.Resource;
 
-public abstract class Process {
+public abstract class Process implements Comparable{
 
     private static int IDs = 0;
 
@@ -58,6 +58,10 @@ public abstract class Process {
     public void removeChild(Process p)
     {
         children.remove(p);
+    }
+    @Override
+    public int compareTo(Object o) {
+        return ((Integer)(((Process) o).priority)).compareTo(((Integer)this.priority));
     }
     @Override
     public String toString() {
