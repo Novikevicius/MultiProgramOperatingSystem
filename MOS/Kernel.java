@@ -63,6 +63,16 @@ public class Kernel {
     public void requestResource(){
 
     }
+    private void resourceDistributor()
+    {
+        for (Resource resource : resources) {
+            if(resource.hasAvailableElement())
+            {
+                resource.giveResource();
+            }
+        }
+        planner();
+    }
     private void planner()
     {
         if(currentProcess != null)

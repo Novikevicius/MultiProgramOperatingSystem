@@ -51,6 +51,10 @@ public abstract class Process {
             kernel.destroyProcess(process);
         }
     }
+    public void takeResource(Resource r)
+    {
+        resources.add(r);
+    }
     public void removeChild(Process p)
     {
         children.remove(p);
