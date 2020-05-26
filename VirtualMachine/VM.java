@@ -12,8 +12,8 @@ public class VM {
     private static final int PAGE_SIZE = 16;
     private static final int PAGE_COUNT = 16;
     private static final int MEMORY_SIZE = PAGE_SIZE * PAGE_COUNT;
-    private static final int DATA_SEGMENT_START = 0;
-    private static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
+    public static final int DATA_SEGMENT_START = 0;
+    public static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
     public static final int SHARED_MEMORY_SEGMENT = 0x0D;
     public static int printerPage;
     private VM shrVM;

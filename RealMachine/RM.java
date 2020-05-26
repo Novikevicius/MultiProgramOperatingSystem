@@ -29,9 +29,12 @@ public class RM {
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
     public static final int MAX_VM_COUNT = 4;
     public static final int WORD_SIZE = 4;
+    public static final int PAGE_TABLE_PAGE_IN_VM = 12;
+    public static final int SHARED_MEMORY_IN_VM = 13;
     
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
-    private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
+    public static final int PAGE_COUNT = PAGE_COUNT_PER_VM * MAX_VM_COUNT;
+    private static final int MEMORY_SIZE = PAGE_COUNT * PAGE_SIZE;
     private int[] MEMORY = new int[MEMORY_SIZE];
 
     private HashMap<Integer, Integer> allocatedMemory = new HashMap<>();
@@ -40,9 +43,9 @@ public class RM {
     public static FlashMemory flashMemory;
     public static Printer printer;
     public static final int SUPERVISOR_MEMORY_START = 0;
-    public static final int SUPERVISOR_MEMORY_END = 100;
-    public static final int MEMORY_START = 100;
-    public static final int MEMORY_END = MEMORY_SIZE;
+    public static final int SUPERVISOR_MEMORY_END = 16;
+    public static final int MEMORY_START = 17;
+    public static final int MEMORY_END = PAGE_COUNT;
     static{
         try {
             hdd = new HDD();

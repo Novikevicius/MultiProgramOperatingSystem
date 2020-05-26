@@ -27,7 +27,7 @@ public class MainProc extends Process {
             break;
 
             case 2:
-            kernel.createProcess(new JobGovernor(this));
+            kernel.createProcess(new JobGovernor(this, task.getSize()));
             jobGovernorsCount += 1;
             counter = -1;
             break;
