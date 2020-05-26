@@ -39,7 +39,7 @@ public abstract class Resource {
         }
     }
     public boolean hasAvailableElement(){
-        return resourceElements.isEmpty();
+        return !resourceElements.isEmpty();
     }
     public void requestResource(Process process, int count){
         waitingProcesses.put(process, count);
