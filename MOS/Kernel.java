@@ -43,6 +43,8 @@ public class Kernel {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
+                }else{
+                    System.out.println("\tRunning " + currentProcess + ": step " + currentProcess.getStep());
                 }
                 currentProcess.run();
             }
@@ -51,6 +53,7 @@ public class Kernel {
                 break;
             }
         }
+        destroyProcess(processes.get(0));
         System.out.println("Shutting down OS");
 
     }
@@ -103,6 +106,11 @@ public class Kernel {
         resources.remove(r);
         System.out.println(r + " resource deleted");
     }
+    public void deleteResources(){
+        while(resources.size() > 0) {
+            deleteResource(resources.get(resources.size()-1));
+        }
+    }
     public void freeResource(Resource r){
         for (Resource resource : resources) {
             if(resource.getClass().equals(r.getClass()))
@@ -144,6 +152,7 @@ public class Kernel {
                             p.takeResource(r);
                         }
                         waitingProcesses.remove(p);
+                        blockedProcesses.remove(p);
                         p.changeState(State.READY);
                         readyProcesses.add(p);
                     }

@@ -30,12 +30,12 @@ public class StartStop extends Process {
             break;
             
             case 3:
-            for (Process process : children) {
-                kernel.destroyProcess(process);
+            while (children.size() > 0) {
+                Process p = children.get(children.size()-1);
+                children.remove(children.size()-1);
+                kernel.destroyProcess(p);
             }
-            for (Resource resource : resources) {
-                kernel.deleteResource(resource);
-            }
+            kernel.deleteResources();
             kernel.shutdownOS();
             break;
         default:

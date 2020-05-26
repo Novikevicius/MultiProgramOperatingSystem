@@ -25,6 +25,10 @@ public abstract class Process implements Comparable{
         this.id = IDs++;
         this.name = name;
         this.priority = priority;
+        if(parent != null)
+        {
+            parent.addChild(this);
+        }
     }
     public void run()
     {
@@ -41,11 +45,9 @@ public abstract class Process implements Comparable{
     }
     public void destroy()
     {
-        if(parent != null){
-            parent.removeChild(this);
-        }
+        if(parent != null) parent.removeChild(this);
         for (Resource resource : resources) {
-            //kernel.freeResource(resource);
+            kernel.freeResource(resource);
         }
         for (Process process : children) {
             kernel.destroyProcess(process);
@@ -54,6 +56,10 @@ public abstract class Process implements Comparable{
     public void takeResource(Resource r)
     {
         resources.add(r);
+    }
+    public void addChild(Process p)
+    {
+        children.add(p);
     }
     public void removeChild(Process p)
     {
