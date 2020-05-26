@@ -18,9 +18,25 @@ public class Kernel {
     private PriorityQueue<Process> blockedProcesses = new PriorityQueue<>();
     private Process currentProcess;
 
+    private boolean shutdown = false;
 
     public void start(){
+        System.out.println("Starting OS");
         getInstance().createProcess(new StartStop());
+        resourceDistributor();
+        while(!shutdown)
+        {
+            if(currentProcess != null)
+            {
+                currentProcess.run();
+            }
+            else
+            {
+                break;
+            }
+        }
+        System.out.println("Shutting down OS");
+
     }
     public void createProcess(Process process){
         System.out.println("Creating " + process + " process");
@@ -57,11 +73,25 @@ public class Kernel {
         resources.remove(r);
         System.out.println(r + " resource deleted");
     }
-    public void freeResource(){
-
+    public void freeResource(Resource r){
+        for (Resource resource : resources) {
+            if(resource.getClass().equals(r.getClass()))
+            {
+                resource.freeResource(r);
+            }
+        }
+        resourceDistributor();
     }
-    public void requestResource(){
-
+    public void requestResource(Process p, Resource r){
+        for (Resource resource : resources) {
+            if(resource.getClass().equals(r.getClass()))
+            {
+                resource.requestResource(p, 1);
+                p.changeState(State.BLOCKED);
+                readyProcesses.remove(p);
+            }
+        }
+        resourceDistributor();
     }
     private void resourceDistributor()
     {
