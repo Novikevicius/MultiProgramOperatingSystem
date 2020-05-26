@@ -39,7 +39,10 @@ public class RM {
     public static HDD hdd;
     public static FlashMemory flashMemory;
     public static Printer printer;
-
+    public static final int SUPERVISOR_MEMORY_START = 0;
+    public static final int SUPERVISOR_MEMORY_END = 100;
+    public static final int MEMORY_START = 100;
+    public static final int MEMORY_END = MEMORY_SIZE;
     static{
         try {
             hdd = new HDD();
