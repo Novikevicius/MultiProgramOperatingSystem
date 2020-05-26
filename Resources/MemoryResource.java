@@ -17,6 +17,10 @@ public class MemoryResource extends Resource  {
         super("MemoryResource", null);
         this.address = address;
     }
+    public MemoryResource()
+    {
+        this(-2);
+    }
     public int getAddress(){
         return address;
     }
