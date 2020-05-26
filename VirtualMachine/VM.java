@@ -477,13 +477,13 @@ public class VM {
         rm.setTI(rm.getTI() + 3);
     }
     public void LC() {
-        rm.setLCK((byte)1);
+        rm.setSI((byte)4);
         shrVM = this;
         rm.setTI(rm.getTI() + 1);
     }
     public void UL() {
-        rm.setLCK((byte)0);
         shrVM = null;
+        rm.setSI((byte)4);
         rm.setTI(rm.getTI() + 3);
     }
     public void LM() {
@@ -493,9 +493,10 @@ public class VM {
         incrementIC();
         if(rm.getLCK() == 1 && shrVM != this)
         {
-            rm.setPI((byte)3);
+            rm.setPI((byte)2);
             return;
         }
+        rm.setSI((byte)3);
         setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
         rm.setTI(rm.getTI() + 1);
     }    
@@ -506,9 +507,10 @@ public class VM {
         incrementIC();
         if(rm.getLCK() == 1 && shrVM != this)
         {
-            rm.setPI((byte)3);
+            rm.setPI((byte)2);
             return;
         }
+        rm.setSI((byte)5);
         writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
         rm.setTI(rm.getTI() + 1);
     }   

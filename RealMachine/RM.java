@@ -27,7 +27,7 @@ public class RM {
 
     public static final int PAGE_SIZE = 16;
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
-    public static final int MAX_VM_COUNT = 64;
+    public static final int MAX_VM_COUNT = 4;
     public static final int WORD_SIZE = 4;
     
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
@@ -39,7 +39,10 @@ public class RM {
     public static HDD hdd;
     public static FlashMemory flashMemory;
     public static Printer printer;
-
+    public static final int SUPERVISOR_MEMORY_START = 0;
+    public static final int SUPERVISOR_MEMORY_END = 100;
+    public static final int MEMORY_START = 100;
+    public static final int MEMORY_END = MEMORY_SIZE;
     static{
         try {
             hdd = new HDD();
@@ -100,6 +103,14 @@ public class RM {
     public void setWord(int page, int offset, int value)
     {
         MEMORY[virtualToRealAddress(page, offset)] = value;
+    }
+    public void setWordAtMemory(int page, int offset, int value)
+    {
+        MEMORY[page * PAGE_SIZE + offset] = value;
+    } 
+    public int getWordAtMemory(int page, int offset)
+    {
+        return MEMORY[page * PAGE_SIZE + offset];
     }
     public int getWord(int page, int offset)
     {
@@ -176,6 +187,7 @@ public class RM {
         if(getSI() + getPI() > 0)
         {
             System.out.println("Interrupt detected...");
+            setMODE((byte)1);
             if(getSI() == 1)
             {
                 
@@ -189,8 +201,30 @@ public class RM {
                 }
                 Printer.print(bd.toString().toCharArray());
             }
+            else if(getSI() == 4)
+            {
+                if(getLCK() == 0)
+                {
+                    System.out.println("Locking");
+                    setLCK((byte)1);
+                }
+                else
+                {
+                    System.out.println("Unlocking");
+                    setLCK((byte)0);
+                }
+            }
+            else if(getSI() == 4)
+            {
+                System.out.println("Reading from shared memory");
+            }
+            else if(getSI() == 5)
+            {
+                System.out.println("Writing to shared memory");
+            }
             setSI((byte)0);
             setPI((byte)0);
+            setMODE((byte)0);
         }
 
 
