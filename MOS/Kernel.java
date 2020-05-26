@@ -63,6 +63,24 @@ public class Kernel {
     public void requestResource(){
 
     }
+    private void planner()
+    {
+        if(currentProcess != null)
+        {
+            State curState = currentProcess.getState();
+            if(curState == State.BLOCKED)
+            {
+                blockedProcesses.add(currentProcess);
+            }
+            if(!readyProcesses.isEmpty())
+            {
+                Process p = readyProcesses.poll();
+                currentProcess = p;
+                return;
+            }
+        }
+        currentProcess = readyProcesses.poll();
+    }
     public static Kernel getInstance() {
         if(Kernel.instance == null)
         {

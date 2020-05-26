@@ -36,6 +36,9 @@ public abstract class Process {
     {
         state = newState;
     }
+    public State getState(){
+        return state;
+    }
     public void destroy()
     {
         if(parent != null){
