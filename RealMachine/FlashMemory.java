@@ -4,6 +4,8 @@ import java.io.FileReader;
 import java.io.BufferedReader;
 import java.io.IOException;
 
+import MultiProgramOperatingSystem.MOS.Kernel;
+
 public class FlashMemory{
 
     public static int sector = 0;
@@ -20,7 +22,6 @@ public class FlashMemory{
                     sector++;
                     line = new StringBuilder();
                 }
-                // 
                 if (c != 10 && c != 13) {
                     line.append((char) c);
                 }
@@ -33,5 +34,31 @@ public class FlashMemory{
             e.printStackTrace();
         }
         System.out.println("Read from FLASH to HDD.");
+    }    
+    public static void readFromFlashToSupervisorMemory() {
+        String sourceFile = "MultiProgramOperatingSystem/flash.txt";
+        try{
+            BufferedReader br = new BufferedReader(new FileReader(sourceFile));
+            int c;
+            RM rm = Kernel.getInstance().getRM();
+            int block = RM.SUPERVISOR_MEMORY_START;
+            int offset = 0;
+            while ((c = br.read()) != -1) {
+                if(block >= RM.SUPERVISOR_MEMORY_END)
+                {
+                    System.out.println("Not Enough Supervisor Memory");
+                    return;
+                }
+                rm.setWordAtMemory(block, offset++, (int)c);
+                if(offset >= RM.PAGE_SIZE)
+                {
+                    offset = 0;
+                    block += 1;
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.exit(-1);
+        }
     }
 }
