@@ -6,6 +6,7 @@ import java.util.PriorityQueue;
 import MultiProgramOperatingSystem.Processes.Process;
 import MultiProgramOperatingSystem.Processes.StartStop;
 import MultiProgramOperatingSystem.Processes.State;
+import MultiProgramOperatingSystem.RealMachine.RM;
 import MultiProgramOperatingSystem.Resources.Resource;
 
 public class Kernel {
@@ -19,9 +20,11 @@ public class Kernel {
     private Process currentProcess;
 
     private boolean shutdown = false;
+    private RM rm;
 
     public void start(){
         System.out.println("Starting OS");
+        rm = new RM();
         getInstance().createProcess(new StartStop());
         resourceDistributor();
         while(!shutdown)
@@ -120,6 +123,10 @@ public class Kernel {
             }
         }
         currentProcess = readyProcesses.poll();
+    }
+    public RM getRM()
+    {
+        return rm;
     }
     public static Kernel getInstance() {
         if(Kernel.instance == null)
