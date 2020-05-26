@@ -45,16 +45,30 @@ public class JobGovernor extends Process {
             break;
 
             case 2:
-            kernel.freeResource(new TaskParametersResource(this, 0));
-            counter = -1;
+            kernel.freeResource(new SupervisorMemoryResource());
             break;
 
             case 3:
+            //kernel.createProcess(new VirtualMachine);
             counter = -1;
+            break;
+
+            case 5:
+            kernel.activateProcess(children.get(0));
+            break;
+
+            case 6:
+            //kernel.requestResource(this, new FromInterruptResource());
+            break;
+
+            case 7:
+            kernel.stopProcess(children.get(0));
+            //runInterrupt();
             break;
 
             default:
             System.out.println("Unrecognized step for " + this + ": " + counter);
+            counter = -1;
         }
     }
     public void copyProgram()
