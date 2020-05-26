@@ -36,6 +36,10 @@ public abstract class Process {
     {
         state = newState;
     }
+    public void destroy()
+    {
+        
+    }
     @Override
     public String toString() {
         return name;

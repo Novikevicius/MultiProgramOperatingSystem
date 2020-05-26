@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.PriorityQueue;
 
 import MultiProgramOperatingSystem.Processes.Process;
+import MultiProgramOperatingSystem.Processes.State;
 import MultiProgramOperatingSystem.Resources.Resource;
 
 public class Kernel {
@@ -20,11 +21,20 @@ public class Kernel {
     public void start(){
 
     }
-    public void createProcess(Process parent, Process process){
-
+    public void createProcess(Process process){
+        System.out.println("Creating " + process + " process");
+        processes.add(process);
+        readyProcesses.add(process);
+        process.changeState(State.READY);
+        System.out.println(process + " created");
     }
-    public void destroyProcess(){
-
+    public void destroyProcess(Process process){
+        System.out.println("Destroying " + process + " process");
+        process.destroy();
+        processes.remove(process);
+        readyProcesses.remove(process);
+        blockedProcesses.remove(process);
+        System.out.println(process + " destroyed");
     }
     public void activateProcess(){
 
