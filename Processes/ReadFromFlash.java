@@ -25,7 +25,7 @@ public class ReadFromFlash extends Process {
             break;
 
             case 3:
-            //kernel.freeResource(new TaskInMemoryResource);
+            kernel.freeResource(new TaskInMemoryResource());
             counter = -1;
             break;
 
