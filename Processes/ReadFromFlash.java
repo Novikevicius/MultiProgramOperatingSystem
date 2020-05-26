@@ -4,7 +4,7 @@ import MultiProgramOperatingSystem.RealMachine.FlashMemory;
 import MultiProgramOperatingSystem.Resources.*;
 
 public class ReadFromFlash extends Process {
-    
+    private int end = 0;
     public ReadFromFlash(Process parent){
         super(parent, "ReadFromFlash", 15);
     }
@@ -21,11 +21,11 @@ public class ReadFromFlash extends Process {
             break;
 
             case 2:
-            FlashMemory.readFromFlashToSupervisorMemory();
+            end = FlashMemory.readFromFlashToSupervisorMemory();
             break;
 
             case 3:
-            kernel.freeResource(new TaskInMemoryResource());
+            kernel.freeResource(new TaskInMemoryResource(end));
             counter = -1;
             break;
 

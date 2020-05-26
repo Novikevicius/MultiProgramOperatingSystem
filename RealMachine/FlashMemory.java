@@ -35,7 +35,7 @@ public class FlashMemory{
         }
         System.out.println("Read from FLASH to HDD.");
     }    
-    public static void readFromFlashToSupervisorMemory() {
+    public static int readFromFlashToSupervisorMemory() {
         String sourceFile = "MultiProgramOperatingSystem/flash.txt";
         try{
             BufferedReader br = new BufferedReader(new FileReader(sourceFile));
@@ -47,7 +47,7 @@ public class FlashMemory{
                 if(block >= RM.SUPERVISOR_MEMORY_END)
                 {
                     System.out.println("Not Enough Supervisor Memory");
-                    return;
+                    return -1;
                 }
                 rm.setWordAtMemory(block, offset++, (int)c);
                 if(offset >= RM.PAGE_SIZE)
@@ -56,9 +56,11 @@ public class FlashMemory{
                     block += 1;
                 }
             }
+            return block * RM.PAGE_SIZE + offset;
         } catch (IOException e) {
             e.printStackTrace();
             System.exit(-1);
+            return 0;
         }
     }
 }
