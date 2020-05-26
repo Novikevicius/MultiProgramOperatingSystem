@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
+import MultiProgramOperatingSystem.MOS.Kernel;
 import MultiProgramOperatingSystem.Processes.Process;
 
 public abstract class Resource {
@@ -23,23 +24,8 @@ public abstract class Resource {
     public void freeResource(Resource element){
         this.resourceElements.add(element);
     }
-    public void giveResource()
-    {
-        for (Map.Entry<Process,Integer> entry : waitingProcesses.entrySet()) {
-            if(resourceElements.size() > entry.getValue())
-            {
-                Process p = entry.getKey();
-                for (int i = 0; i < entry.getValue(); i++) {
-                    Resource r = resourceElements.get(0);
-                    resourceElements.remove(0);
-                    p.takeResource(r);
-                }
-                waitingProcesses.remove(p);
-            }
-        }
-    }
     public boolean hasAvailableElement(){
-        return !resourceElements.isEmpty();
+        return !resourceElements.isEmpty() && !waitingProcesses.isEmpty();
     }
     public void requestResource(Process process, int count){
         waitingProcesses.put(process, count);
@@ -47,5 +33,12 @@ public abstract class Resource {
     @Override
     public String toString() {
         return name;
+    }
+    public HashMap<Process, Integer> getWaitingProcesses()
+    {
+        return waitingProcesses;
+    }
+    public ArrayList<Resource> getElements(){
+        return resourceElements;
     }
 }
