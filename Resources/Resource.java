@@ -30,6 +30,9 @@ public abstract class Resource {
     public void requestResource(Process process, int count){
         waitingProcesses.put(process, count);
     }
+    public Process getCreator(){
+        return creator;
+    }
     @Override
     public String toString() {
         return name;
