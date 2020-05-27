@@ -177,6 +177,10 @@ public class Kernel {
                 p.changeState(State.RUNNING);
                 return;
             }
+            else if(curState == State.READY || curState == State.RUNNING)
+            {
+                return;
+            }
         }
         currentProcess = readyProcesses.poll();
     }
