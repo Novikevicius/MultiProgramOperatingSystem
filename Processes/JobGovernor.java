@@ -7,6 +7,7 @@ import MultiProgramOperatingSystem.Resources.*;
 public class JobGovernor extends Process {
     private int size = 0;
     private static boolean setShr = false;
+    private boolean semaphore = false;
     public JobGovernor(Process parent, int size){
         super(parent, "JobGovernor", 45);
         this.size = size;
@@ -54,6 +55,8 @@ public class JobGovernor extends Process {
 
             case 4:
             kernel.activateProcess(children.get(0));
+            if(semaphore)
+                kernel.getRM().setLCK((byte)1);
             break;
 
             case 5:
@@ -86,10 +89,33 @@ public class JobGovernor extends Process {
                 changeState(State.BLOCKED);
                 return;
 
+            case "SEMAPHORE":
+                if(hasSemaphore())
+                {
+                    kernel.freeResource(resources.get(resources.size()-1));
+                    semaphore = false;
+                }else{
+                    kernel.requestResource(this, new SemaphoreResource());
+                    semaphore = true;
+                }
+                counter = 3;
+                return;
+
+            case "MEMORY":
+                System.out.println("VM is trying to access wrong memory, destroying it...");
+                kernel.destroyProcess(children.get(0));
+                TaskParametersResource task2 = new TaskParametersResource(this, 0);
+                kernel.freeResource(task2);
+                changeState(State.BLOCKED);
+                return;
             default:
                 counter = -1;
                 break;
         }
+    }
+    private boolean hasSemaphore()
+    {
+        return resources.get(resources.size()-1).getClass().equals(SemaphoreResource.class);
     }
     @Override
     public void takeResource(Resource r)

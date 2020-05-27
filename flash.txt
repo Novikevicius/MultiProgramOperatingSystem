@@ -3,7 +3,7 @@ DW 2
 DW 5
 DW -1
 CODE
-LW1 0 0
-LW2 0 1
-ADD
+LC
+SM 0 1
+UL
 HALT
