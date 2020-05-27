@@ -49,21 +49,20 @@ public class JobGovernor extends Process {
             break;
 
             case 3:
-            //kernel.createProcess(new VirtualMachine);
-            counter = -1;
+            kernel.createProcess(new VirtualMachine(this));
             break;
 
-            case 5:
+            case 4:
             kernel.activateProcess(children.get(0));
             break;
 
-            case 6:
-            //kernel.requestResource(this, new FromInterruptResource());
+            case 5:
+            kernel.requestResource(this, new FromInterruptResource());
             break;
 
-            case 7:
+            case 6:
             kernel.stopProcess(children.get(0));
-            //runInterrupt();
+            runInterrupt();
             break;
 
             default:
@@ -71,10 +70,36 @@ public class JobGovernor extends Process {
             counter = -1;
         }
     }
+    private void runInterrupt(){
+        FromInterruptResource r = (FromInterruptResource) resources.get(resources.size()-1);
+        resources.remove(resources.size()-1);
+        String interrupt = r.getInterruptType();
+        switch (interrupt) {
+            case "TIME":
+                counter = 3;
+                return;
+                
+            case "HALT":
+                kernel.destroyProcess(children.get(0));
+                TaskParametersResource task = new TaskParametersResource(this, 0);
+                kernel.freeResource(task);
+                changeState(State.BLOCKED);
+                return;
+
+            default:
+                counter = -1;
+                break;
+        }
+    }
+    @Override
+    public void takeResource(Resource r)
+    {
+        resources.add(r);
+    }
     public void copyProgram()
     {   
         RM rm = kernel.getRM();
-        VM vm = new VM(rm);
+        VM vm = new VM(rm, null);
         
         String state = "START";
         String currentLine = "";
@@ -83,13 +108,17 @@ public class JobGovernor extends Process {
         int index = 0;
         while (true)
         {
+            if(size == page * RM.PAGE_SIZE + index) 
+                return;
             currentLine = "";
             char c = 0;
             while(true)
             {
-                if(size == page * RM.PAGE_SIZE + index) 
-                    return;
                 c = (char)rm.getWordAtMemory(page, index++);
+                if(size == page * RM.PAGE_SIZE + index){
+                    currentLine += c;
+                    break;
+                }
                 if(index >= RM.PAGE_SIZE)
                 {
                     index = 0;
