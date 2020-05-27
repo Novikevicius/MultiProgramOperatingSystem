@@ -77,4 +77,8 @@ public abstract class Process implements Comparable{
     public String toString() {
         return name;
     }
+
+    public void resetIC(){
+        this.IC = -1;
+    }
 }
