@@ -209,12 +209,14 @@ public class RM {
                 if(getLCK() == 0)
                 {
                     System.out.println("Locking");
-                    setLCK((byte)1);
+                    throw new Exception("SEMAPHORE");
+                    //setLCK((byte)1);
                 }
                 else
                 {
                     System.out.println("Unlocking");
-                    setLCK((byte)0);
+                    throw new Exception("SEMAPHORE");
+                    //setLCK((byte)0);
                 }
             }
             else if(getSI() == 4)
@@ -224,6 +226,8 @@ public class RM {
             else if(getSI() == 5)
             {
                 System.out.println("Writing to shared memory");
+            }else if(getPI() == 3){
+                throw new Exception("MEMORY");
             }
             setSI((byte)0);
             setPI((byte)0);

@@ -64,6 +64,14 @@ public class VM {
                 running = false;
                 return;
             }
+            if(e.getMessage().equals("SEMAPHORE")){
+                Kernel.getInstance().freeResource(new InterruptResource(process, "SEMAPHORE"));
+                return;
+            }
+            if(e.getMessage().equals("MEMORY")){
+                Kernel.getInstance().freeResource(new InterruptResource(process, "MEMORY"));
+                return;
+            }
             else
                 throw e;
         }
@@ -496,11 +504,9 @@ public class VM {
     }
     public void LC() {
         rm.setSI((byte)4);
-        shrVM = this;
         rm.setTI(rm.getTI() - 1);
     }
     public void UL() {
-        shrVM = null;
         rm.setSI((byte)4);
         rm.setTI(rm.getTI() - 3);
     }
@@ -509,12 +515,11 @@ public class VM {
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
-        if(rm.getLCK() == 1 && shrVM != this)
+        if(rm.getLCK() == 0)
         {
-            rm.setPI((byte)2);
+            rm.setPI((byte)3);
             return;
         }
-        rm.setSI((byte)3);
         setR1(readWord((SHARED_MEMORY_SEGMENT +  x1) * PAGE_SIZE + x2));
         rm.setTI(rm.getTI() - 1);
     }    
@@ -523,12 +528,11 @@ public class VM {
         incrementIC();
         int x2 = readWord(getIC());
         incrementIC();
-        if(rm.getLCK() == 1 && shrVM != this)
+        if(rm.getLCK() == 0)
         {
-            rm.setPI((byte)2);
+            rm.setPI((byte)3);
             return;
         }
-        rm.setSI((byte)5);
         writeWord((SHARED_MEMORY_SEGMENT + x1) * PAGE_SIZE + x2, getR1());
         rm.setTI(rm.getTI() - 1);
     }   
