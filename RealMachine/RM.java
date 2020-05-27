@@ -7,7 +7,7 @@ import java.util.Random;
 import MultiProgramOperatingSystem.VirtualMachine.VM;
 
 public class RM {
-    private byte MODE;
+    private byte MODE=1;
     private int PTR;
     private int IC;
     private byte PI;
@@ -17,7 +17,7 @@ public class RM {
     private int R3;
     private byte CMP;
     private byte IO;
-    private int TI;
+    private int TI=5;
     private byte LCK;
     private int SHR = 0;
     private boolean setSHR = false;
@@ -186,7 +186,7 @@ public class RM {
     {
         System.out.println(reg + ": " + old + " -> " + n);
     }
-    public void test(){
+    public void test() throws Exception {
         if(getSI() + getPI() > 0)
         {
             System.out.println("Interrupt detected...");
@@ -227,9 +227,13 @@ public class RM {
             }
             setSI((byte)0);
             setPI((byte)0);
-            setMODE((byte)0);
+            setMODE((byte)1);
         }
-
+        if( getTI() <= 0 )
+        {
+            setTI(5);
+            throw new Exception("Interrupt TIME");
+        }
 
     }
     public byte getLCK(){
