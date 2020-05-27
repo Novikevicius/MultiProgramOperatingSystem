@@ -3,6 +3,7 @@ package MultiProgramOperatingSystem.Processes;
 import MultiProgramOperatingSystem.RealMachine.RM;
 import MultiProgramOperatingSystem.VirtualMachine.*;
 import MultiProgramOperatingSystem.Resources.*;
+import MultiProgramOperatingSystem.Processes.*;
 
 public class JobGovernor extends Process {
     private int size = 0;
@@ -49,7 +50,7 @@ public class JobGovernor extends Process {
             break;
 
             case 3:
-            //kernel.createProcess(new VirtualMachine);
+            kernel.createProcess(new VirtualMachine());
             counter = -1;
             break;
 
