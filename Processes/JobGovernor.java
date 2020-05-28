@@ -163,6 +163,7 @@ public class JobGovernor extends Process {
             {
                 c = (char)rm.getWordAtMemory(page, index++);
                 if(size == page * RM.PAGE_SIZE + index){
+                    if(currentLine.contains("HALT")) break;
                     currentLine += c;
                     break;
                 }
