@@ -68,6 +68,10 @@ public class VM {
                 Kernel.getInstance().freeResource(new InterruptResource(process, "SEMAPHORE"));
                 return;
             }
+            if(e.getMessage().contains("PRINT")){
+                Kernel.getInstance().freeResource(new InterruptResource(process, e.getMessage()));
+                return;
+            }
             if(e.getMessage().equals("MEMORY")){
                 Kernel.getInstance().freeResource(new InterruptResource(process, "MEMORY"));
                 return;

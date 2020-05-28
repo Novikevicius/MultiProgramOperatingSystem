@@ -197,12 +197,7 @@ public class RM {
             }
             else if(getSI() == 2)
             {
-                StringBuilder bd = new StringBuilder();
-                for (int offset = 0; offset < PAGE_SIZE; offset++)
-                {
-                    bd.append((char)getWord(VM.printerPage, offset));
-                }
-                Printer.print(bd.toString().toCharArray());
+                throw new Exception("PRINT " + virtualToRealAddress(VM.printerPage, 0)/PAGE_SIZE);
             }
             else if(getSI() == 4)
             {
@@ -210,13 +205,11 @@ public class RM {
                 {
                     System.out.println("Locking");
                     throw new Exception("SEMAPHORE");
-                    //setLCK((byte)1);
                 }
                 else
                 {
                     System.out.println("Unlocking");
                     throw new Exception("SEMAPHORE");
-                    //setLCK((byte)0);
                 }
             }
             else if(getSI() == 4)
@@ -231,7 +224,6 @@ public class RM {
             }
             setSI((byte)0);
             setPI((byte)0);
-            setMODE((byte)1);
         }
         if( getTI() <= 0 )
         {
