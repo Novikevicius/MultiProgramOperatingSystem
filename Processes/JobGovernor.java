@@ -68,15 +68,27 @@ public class JobGovernor extends Process {
             runInterrupt();
             break;
 
+            case 7:
+            kernel.requestResource(this, new PrintedResource(this));
+            counter = 3;
+            break;
+
             default:
             System.out.println("Unrecognized step for " + this + ": " + counter);
-            counter = -1;
         }
     }
     private void runInterrupt(){
         FromInterruptResource r = (FromInterruptResource) resources.get(resources.size()-1);
         resources.remove(resources.size()-1);
         String interrupt = r.getInterruptType();
+        if(interrupt.contains("PRINT"))
+        {
+            int page = Integer.parseInt(interrupt.split(" ")[1]);
+            kernel.freeResource(new PrintResource(this, page));
+            counter = 6;
+            return;
+        }
+
         switch (interrupt) {
             case "TIME":
                 counter = 3;
