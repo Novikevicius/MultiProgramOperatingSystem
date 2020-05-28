@@ -17,12 +17,16 @@ public class StartStop extends Process {
             kernel.createResource(new MemoryResource(this));
             kernel.createResource(new TaskInMemoryResource(this));
             kernel.createResource(new TaskParametersResource(this));
+            kernel.createResource(new InterruptResource(this, null));
+            kernel.createResource(new FromInterruptResource(this));
+            kernel.createResource(new SemaphoreResource(this));
             break;
             
             case 1:
             kernel.createProcess(new ReadFromFlash(this));
             kernel.createProcess(new JCL(this));
             kernel.createProcess(new MainProc(this));
+            kernel.createProcess(new Interrupt(this));
             break;
 
             case 2:

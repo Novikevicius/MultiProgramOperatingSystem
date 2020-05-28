@@ -7,6 +7,7 @@ import MultiProgramOperatingSystem.Resources.*;
 public class JobGovernor extends Process {
     private int size = 0;
     private static boolean setShr = false;
+    private boolean semaphore = false;
     public JobGovernor(Process parent, int size){
         super(parent, "JobGovernor", 45);
         this.size = size;
@@ -49,21 +50,22 @@ public class JobGovernor extends Process {
             break;
 
             case 3:
-            //kernel.createProcess(new VirtualMachine);
-            counter = -1;
+            kernel.createProcess(new VirtualMachine(this));
+            break;
+
+            case 4:
+            kernel.activateProcess(children.get(0));
+            if(semaphore)
+                kernel.getRM().setLCK((byte)1);
             break;
 
             case 5:
-            kernel.activateProcess(children.get(0));
+            kernel.requestResource(this, new FromInterruptResource());
             break;
 
             case 6:
-            //kernel.requestResource(this, new FromInterruptResource());
-            break;
-
-            case 7:
             kernel.stopProcess(children.get(0));
-            //runInterrupt();
+            runInterrupt();
             break;
 
             default:
@@ -71,10 +73,59 @@ public class JobGovernor extends Process {
             counter = -1;
         }
     }
+    private void runInterrupt(){
+        FromInterruptResource r = (FromInterruptResource) resources.get(resources.size()-1);
+        resources.remove(resources.size()-1);
+        String interrupt = r.getInterruptType();
+        switch (interrupt) {
+            case "TIME":
+                counter = 3;
+                return;
+                
+            case "HALT":
+                kernel.destroyProcess(children.get(0));
+                TaskParametersResource task = new TaskParametersResource(this, 0);
+                kernel.freeResource(task);
+                changeState(State.BLOCKED);
+                return;
+
+            case "SEMAPHORE":
+                if(hasSemaphore())
+                {
+                    kernel.freeResource(resources.get(resources.size()-1));
+                    semaphore = false;
+                }else{
+                    kernel.requestResource(this, new SemaphoreResource());
+                    semaphore = true;
+                }
+                counter = 3;
+                return;
+
+            case "MEMORY":
+                System.out.println("VM is trying to access wrong memory, destroying it...");
+                kernel.destroyProcess(children.get(0));
+                TaskParametersResource task2 = new TaskParametersResource(this, 0);
+                kernel.freeResource(task2);
+                changeState(State.BLOCKED);
+                return;
+            default:
+                counter = -1;
+                break;
+        }
+    }
+    private boolean hasSemaphore()
+    {
+        return resources.get(resources.size()-1).getClass().equals(SemaphoreResource.class);
+    }
+    @Override
+    public void takeResource(Resource r)
+    {
+        resources.add(r);
+    }
     public void copyProgram()
     {   
         RM rm = kernel.getRM();
-        VM vm = new VM(rm);
+        VM vm = new VM(rm, null);
         
         String state = "START";
         String currentLine = "";
@@ -83,13 +134,17 @@ public class JobGovernor extends Process {
         int index = 0;
         while (true)
         {
+            if(size == page * RM.PAGE_SIZE + index) 
+                return;
             currentLine = "";
             char c = 0;
             while(true)
             {
-                if(size == page * RM.PAGE_SIZE + index) 
-                    return;
                 c = (char)rm.getWordAtMemory(page, index++);
+                if(size == page * RM.PAGE_SIZE + index){
+                    currentLine += c;
+                    break;
+                }
                 if(index >= RM.PAGE_SIZE)
                 {
                     index = 0;

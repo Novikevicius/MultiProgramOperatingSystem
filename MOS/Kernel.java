@@ -173,8 +173,16 @@ public class Kernel {
             if(!readyProcesses.isEmpty())
             {
                 Process p = readyProcesses.poll();
+                if(curState == State.READY || curState == State.RUNNING){
+                    p.changeState(State.READY);
+                    readyProcesses.add(p);
+                }
                 currentProcess = p;
                 p.changeState(State.RUNNING);
+                return;
+            }
+            else if(curState == State.READY || curState == State.RUNNING)
+            {
                 return;
             }
         }
