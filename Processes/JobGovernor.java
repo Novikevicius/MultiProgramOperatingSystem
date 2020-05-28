@@ -8,6 +8,8 @@ public class JobGovernor extends Process {
     private int size = 0;
     private static boolean setShr = false;
     private boolean semaphore = false;
+    private int ptr = 0;
+    private int old_ptr = 0;
     public JobGovernor(Process parent, int size){
         super(parent, "JobGovernor", 45);
         this.size = size;
@@ -23,7 +25,9 @@ public class JobGovernor extends Process {
             case 1:
             RM rm = kernel.getRM();
             int index = 0;
-            rm.setPTR(((MemoryResource)resources.get(index++)).getAddress());
+            ptr = ((MemoryResource)resources.get(index++)).getAddress();
+            old_ptr = rm.getPTR();
+            rm.setPTR(ptr);
             for(int i = 0; i < RM.PAGE_COUNT_PER_VM; i++)
             {
                 if( i == RM.PAGE_TABLE_PAGE_IN_VM ){
@@ -43,18 +47,23 @@ public class JobGovernor extends Process {
                 rm.setPTE(i, ((MemoryResource)resources.get(index++)).getAddress());
             }
             copyProgram();
+            kernel.getRM().setPTR(old_ptr);
             break;
 
             case 2:
             kernel.freeResource(new SupervisorMemoryResource());
+            kernel.freeResource(new InputStreamResource());
             break;
 
             case 3:
-            kernel.createProcess(new VirtualMachine(this));
+            VirtualMachine vm = new VirtualMachine(this);
+            vm.setPTR(ptr);
+            kernel.createProcess(vm);
             break;
 
             case 4:
             kernel.activateProcess(children.get(0));
+
             if(semaphore)
                 kernel.getRM().setLCK((byte)1);
             break;
@@ -68,15 +77,27 @@ public class JobGovernor extends Process {
             runInterrupt();
             break;
 
+            case 7:
+            kernel.requestResource(this, new PrintedResource(this));
+            counter = 3;
+            break;
+
             default:
             System.out.println("Unrecognized step for " + this + ": " + counter);
-            counter = -1;
         }
     }
     private void runInterrupt(){
         FromInterruptResource r = (FromInterruptResource) resources.get(resources.size()-1);
         resources.remove(resources.size()-1);
         String interrupt = r.getInterruptType();
+        if(interrupt.contains("PRINT"))
+        {
+            int page = Integer.parseInt(interrupt.split(" ")[1]);
+            kernel.freeResource(new PrintResource(this, page));
+            counter = 6;
+            return;
+        }
+
         switch (interrupt) {
             case "TIME":
                 counter = 3;

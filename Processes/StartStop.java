@@ -20,6 +20,9 @@ public class StartStop extends Process {
             kernel.createResource(new InterruptResource(this, null));
             kernel.createResource(new FromInterruptResource(this));
             kernel.createResource(new SemaphoreResource(this));
+            kernel.createResource(new PrintResource(this));
+            kernel.createResource(new PrintedResource(this));
+            kernel.createResource(new Channel3Resource(this));
             break;
             
             case 1:
@@ -27,6 +30,7 @@ public class StartStop extends Process {
             kernel.createProcess(new JCL(this));
             kernel.createProcess(new MainProc(this));
             kernel.createProcess(new Interrupt(this));
+            kernel.createProcess(new PrintLine(this));
             break;
 
             case 2:

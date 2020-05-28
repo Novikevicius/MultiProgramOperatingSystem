@@ -46,6 +46,7 @@ public abstract class Process implements Comparable{
     public void destroy()
     {
         if(parent != null) parent.removeChild(this);
+        kernel.removeReady(this);
         while(resources.size() > 0)
         {
             kernel.freeResource(resources.get(resources.size()-1));

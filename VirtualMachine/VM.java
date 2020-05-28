@@ -19,13 +19,24 @@ public class VM {
     public static final int CODE_SEGMENT_START = PAGE_SIZE * 4;
     public static final int SHARED_MEMORY_SEGMENT = 0x0D;
     public static int printerPage;
-    private VM shrVM;
+    
     private RM rm;
+    private RM saved;
     private Process process;
     private boolean running = false;
+    private boolean repeat = false;
     public VM(RM rm, Process p) {
         this.rm = rm;
         process = p;
+    }
+    public void saveValues()
+    {
+        saved = (RM) rm.clone();
+    }
+    public void loadValues()
+    {
+        if(saved == null) return;
+        rm = (RM)saved.clone();
     }
     public void printRegisters()
     {
@@ -43,7 +54,9 @@ public class VM {
         {
             while (true)
             {
+                repeat = false;
                 executeInstruction();
+                if(repeat) continue;
                 rm.test();
             }
         }
@@ -68,6 +81,10 @@ public class VM {
                 Kernel.getInstance().freeResource(new InterruptResource(process, "SEMAPHORE"));
                 return;
             }
+            if(e.getMessage().contains("PRINT")){
+                Kernel.getInstance().freeResource(new InterruptResource(process, e.getMessage()));
+                return;
+            }
             if(e.getMessage().equals("MEMORY")){
                 Kernel.getInstance().freeResource(new InterruptResource(process, "MEMORY"));
                 return;
@@ -84,21 +101,6 @@ public class VM {
         int offset = address - page * PAGE_SIZE;
         writeWord(page, offset, word);
     }
-    /*
-    public void writeWord(int address, String word)
-    {
-        if(address < 0 || address >= MEMORY_SIZE)
-            return;
-        asciiValues = new int[word.length()];
-        for(int i=0; i < word.length(); i++){
-            char c = name.charAt(i);
-            asciiValues[i] = (int)c;
-        }
-        for(int el: asciiValues){
-            System.out.print(el+ " ");
-        }
-        
-    }*/
     public void writeWord(int page, int offset, int word)
     {
         if(page < 0 || page >= PAGE_COUNT || offset < 0 || offset >= PAGE_SIZE)
@@ -158,15 +160,10 @@ public class VM {
                 else if(state.equals("CODE"))
                 {
                     Instruction instr = Instruction.getInstructionByName(currentLine);
-                   /* if(instr.getOpcode() == Instruction.JMP.getOpcode())
-                    {
-                        writeWord(offset++, String.parseString(split[1]));
-                    } else{*/
-                        writeWord(offset++, instr.getOpcode());
-                        for (int i = 0; i < instr.getArgCount(); i++){
-                            writeWord(offset++, Integer.parseInt(split[i+1]));
-                        }
-                   // }
+                    writeWord(offset++, instr.getOpcode());
+                    for (int i = 0; i < instr.getArgCount(); i++){
+                        writeWord(offset++, Integer.parseInt(split[i+1]));
+                    }
                 }
             }
         }
@@ -177,43 +174,46 @@ public class VM {
     }
     public void executeInstruction() throws Exception {
         int op = readWord(getIC());
-        if(Main.DEBUG)
+        if(Main.DEBUG_VM)
         {
-            System.out.println("Press ENTER to execute instruction: " + Instruction.getCommandName(op));
+            System.out.println("[VM]Press ENTER to execute instruction: " + Instruction.getCommandName(op));
             System.out.println("Enter help for more debug commands");
             BufferedReader reader = new BufferedReader(new InputStreamReader(System.in)); 
             String input = reader.readLine();
             if (input.equals("help"))
             {
+                repeat = true;
                 System.out.println("use <rm >to print Real Memory: usage rm <start> <end>");
                 System.out.println("\t\t- rm 0 5");
                 System.out.println("use <vm> to print Virtual Memory: usage vm <start> <end>");
                 System.out.println("\t\t- vm 0 5");
                 System.out.println("use <print rm> to see real machine state");
-                System.out.println("\n");
                 System.out.println("use <print vm> to see virtual machine state");
-                System.out.println("\n");
                 System.out.println("use <pt> to see page table");
-                System.out.println("\n");
+                System.out.println("");
                 return;
             }
             else if(input.equals("print rm"))
             {
                 System.out.println(rm.toString());
+                repeat = true;
                 return;
             }
             else if(input.equals("print vm"))
             {
                 printRegisters();
+                repeat = true;
                 return;
             }
             else if(input.equals("pt"))
             {
                 rm.printPageTable();
+                repeat = true;
                 return;
             }
             else if(input.contains("vm") || input.contains("rm"))
             {
+                repeat = true;
                 try
                 {
                     String[] split = input.split(" ");

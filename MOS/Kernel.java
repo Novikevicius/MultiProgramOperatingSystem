@@ -7,6 +7,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.PriorityQueue;
+import java.util.Set;
 
 import MultiProgramOperatingSystem.Main;
 import MultiProgramOperatingSystem.Processes.*;
@@ -142,7 +143,9 @@ public class Kernel {
             {
                 HashMap<Process, Integer> waitingProcesses = resource.getWaitingProcesses();
                 ArrayList<Resource> resourceElements = resource.getElements();
-                for (Map.Entry<Process,Integer> entry : waitingProcesses.entrySet()) {
+                while(waitingProcesses.size() > 0){
+                    Set<Map.Entry<Process,Integer>> entrys = waitingProcesses.entrySet();
+                    Map.Entry<Process,Integer> entry = entrys.iterator().next();
                     if(resourceElements.size() >= entry.getValue())
                     {
                         Process p = entry.getKey();
@@ -155,7 +158,7 @@ public class Kernel {
                         blockedProcesses.remove(p);
                         p.changeState(State.READY);
                         readyProcesses.add(p);
-                    }
+                    }else break;
                 }
             }
         }
@@ -174,8 +177,8 @@ public class Kernel {
             {
                 Process p = readyProcesses.poll();
                 if(curState == State.READY || curState == State.RUNNING){
-                    p.changeState(State.READY);
-                    readyProcesses.add(p);
+                    currentProcess.changeState(State.READY);
+                    readyProcesses.add(currentProcess);
                 }
                 currentProcess = p;
                 p.changeState(State.RUNNING);
@@ -187,6 +190,9 @@ public class Kernel {
             }
         }
         currentProcess = readyProcesses.poll();
+    }
+    public void removeReady(Process p){
+        readyProcesses.remove(p);
     }
     public void shutdownOS()
     {
