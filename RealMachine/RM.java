@@ -6,8 +6,8 @@ import java.util.Random;
 
 import MultiProgramOperatingSystem.VirtualMachine.VM;
 
-public class RM {
-    private byte MODE;
+public class RM implements Cloneable {
+    private byte MODE=1;
     private int PTR;
     private int IC;
     private byte PI;
@@ -17,7 +17,7 @@ public class RM {
     private int R3;
     private byte CMP;
     private byte IO;
-    private int TI;
+    private int TI=5;
     private byte LCK;
     private int SHR = 0;
     private boolean setSHR = false;
@@ -29,9 +29,12 @@ public class RM {
     public static final int PAGE_COUNT_PER_VM = 16; // per one Virtual Machine
     public static final int MAX_VM_COUNT = 4;
     public static final int WORD_SIZE = 4;
+    public static final int PAGE_TABLE_PAGE_IN_VM = 12;
+    public static final int SHARED_MEMORY_IN_VM = 13;
     
     public static final int ENTRIES_PER_PAGE_TABLE = PAGE_COUNT_PER_VM;
-    private static final int MEMORY_SIZE = PAGE_COUNT_PER_VM * PAGE_SIZE * MAX_VM_COUNT;
+    public static final int PAGE_COUNT = PAGE_COUNT_PER_VM * MAX_VM_COUNT;
+    private static final int MEMORY_SIZE = PAGE_COUNT * PAGE_SIZE;
     private int[] MEMORY = new int[MEMORY_SIZE];
 
     private HashMap<Integer, Integer> allocatedMemory = new HashMap<>();
@@ -40,9 +43,9 @@ public class RM {
     public static FlashMemory flashMemory;
     public static Printer printer;
     public static final int SUPERVISOR_MEMORY_START = 0;
-    public static final int SUPERVISOR_MEMORY_END = 100;
-    public static final int MEMORY_START = 100;
-    public static final int MEMORY_END = MEMORY_SIZE;
+    public static final int SUPERVISOR_MEMORY_END = 16;
+    public static final int MEMORY_START = 17;
+    public static final int MEMORY_END = PAGE_COUNT;
     static{
         try {
             hdd = new HDD();
@@ -51,6 +54,21 @@ public class RM {
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    @Override
+	public Object clone() {
+        RM rm = new RM();
+        rm.PTR = PTR;
+        rm.IC = IC;
+        rm.R1 = R1;
+        rm.R2 = R2;
+        rm.R3 = R3;
+        rm.CMP = CMP;
+        rm.TI = TI;
+        rm.LCK = LCK;
+        rm.LCK = LCK;
+        rm.MEMORY = MEMORY;
+        return rm;
     }
     @Override
     public String toString() {
@@ -183,7 +201,7 @@ public class RM {
     {
         System.out.println(reg + ": " + old + " -> " + n);
     }
-    public void test(){
+    public void test() throws Exception {
         if(getSI() + getPI() > 0)
         {
             System.out.println("Interrupt detected...");
@@ -194,24 +212,19 @@ public class RM {
             }
             else if(getSI() == 2)
             {
-                StringBuilder bd = new StringBuilder();
-                for (int offset = 0; offset < PAGE_SIZE; offset++)
-                {
-                    bd.append((char)getWord(VM.printerPage, offset));
-                }
-                Printer.print(bd.toString().toCharArray());
+                throw new Exception("PRINT " + virtualToRealAddress(VM.printerPage, 0)/PAGE_SIZE);
             }
             else if(getSI() == 4)
             {
                 if(getLCK() == 0)
                 {
                     System.out.println("Locking");
-                    setLCK((byte)1);
+                    throw new Exception("SEMAPHORE");
                 }
                 else
                 {
                     System.out.println("Unlocking");
-                    setLCK((byte)0);
+                    throw new Exception("SEMAPHORE");
                 }
             }
             else if(getSI() == 4)
@@ -221,12 +234,17 @@ public class RM {
             else if(getSI() == 5)
             {
                 System.out.println("Writing to shared memory");
+            }else if(getPI() == 3){
+                throw new Exception("MEMORY");
             }
             setSI((byte)0);
             setPI((byte)0);
-            setMODE((byte)0);
         }
-
+        if( getTI() <= 0 )
+        {
+            setTI(5);
+            throw new Exception("Interrupt TIME");
+        }
 
     }
     public byte getLCK(){
@@ -242,6 +260,9 @@ public class RM {
     public void setSHR(int v){
         printRegChange("SHR", SHR, v);
         SHR = v;
+    }
+    public void setCMP(byte v){
+        CMP = v;
     }
     public byte getCMP(){
         return CMP;

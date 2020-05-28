@@ -22,6 +22,8 @@ public class ReadFromFlash extends Process {
 
             case 2:
             end = FlashMemory.readFromFlashToSupervisorMemory();
+            if(end == 0)
+                counter = -1;
             break;
 
             case 3:

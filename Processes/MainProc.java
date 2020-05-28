@@ -18,15 +18,16 @@ public class MainProc extends Process {
 
             case 1:
             task = (TaskParametersResource) resources.get(0);
+            resources.remove(0);
             if(task.getEnd() == 0)
             {
-                counter = 3;
+                counter = 2;
                 return;
             }
             break;
 
             case 2:
-            //kernel.createProcess(new JobGovernor());
+            kernel.createProcess(new JobGovernor(this, task.getSize()));
             jobGovernorsCount += 1;
             counter = -1;
             break;

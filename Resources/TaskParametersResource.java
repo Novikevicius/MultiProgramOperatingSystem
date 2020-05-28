@@ -3,6 +3,7 @@ package MultiProgramOperatingSystem.Resources;
 import MultiProgramOperatingSystem.Processes.Process;
 
 public class TaskParametersResource extends Resource  {
+    private int size = 0;
     private int end = 0;
     private Process sender;
     public TaskParametersResource(Process creator)
@@ -11,8 +12,13 @@ public class TaskParametersResource extends Resource  {
     }
     public TaskParametersResource(Process sender, int end)
     {
+        this(sender, end, -1);
+    }
+    public TaskParametersResource(Process sender, int end, int size)
+    {
         super("TaskParametersResource", null);
         this.sender = sender;
+        this.size = size;
         this.end = end;
     }
     public TaskParametersResource()
@@ -30,5 +36,9 @@ public class TaskParametersResource extends Resource  {
     public Process getSender()
     {
         return sender;
+    }
+    public int getSize()
+    {
+        return size;
     }
 }

@@ -5,6 +5,7 @@ import MultiProgramOperatingSystem.Resources.*;
 import MultiProgramOperatingSystem.VirtualMachine.Instruction;
 
 public class JCL extends Process {
+    private TaskInMemoryResource task;
     public JCL(Process parent){
         super(parent, "JCL", 20);
     }
@@ -22,7 +23,7 @@ public class JCL extends Process {
             break;
 
             case 2:
-            kernel.freeResource(new TaskParametersResource(this, 1));
+            kernel.freeResource(new TaskParametersResource(this, 1, task.getEnd()));
             counter = -1;
             break;
 
@@ -32,7 +33,7 @@ public class JCL extends Process {
     }
     public boolean checkSyntax()
     {
-        TaskInMemoryResource task = (TaskInMemoryResource) resources.get(0);
+        task = (TaskInMemoryResource) resources.get(0);
         try
         {
             String state = "START";
