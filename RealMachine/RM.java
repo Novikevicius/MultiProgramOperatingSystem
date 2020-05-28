@@ -6,7 +6,7 @@ import java.util.Random;
 
 import MultiProgramOperatingSystem.VirtualMachine.VM;
 
-public class RM {
+public class RM implements Cloneable {
     private byte MODE=1;
     private int PTR;
     private int IC;
@@ -54,6 +54,21 @@ public class RM {
         catch (FileNotFoundException e) {
             e.printStackTrace();
         }
+    }
+    @Override
+	public Object clone() {
+        RM rm = new RM();
+        rm.PTR = PTR;
+        rm.IC = IC;
+        rm.R1 = R1;
+        rm.R2 = R2;
+        rm.R3 = R3;
+        rm.CMP = CMP;
+        rm.TI = TI;
+        rm.LCK = LCK;
+        rm.LCK = LCK;
+        rm.MEMORY = MEMORY;
+        return rm;
     }
     @Override
     public String toString() {
@@ -245,6 +260,9 @@ public class RM {
     public void setSHR(int v){
         printRegChange("SHR", SHR, v);
         SHR = v;
+    }
+    public void setCMP(byte v){
+        CMP = v;
     }
     public byte getCMP(){
         return CMP;
