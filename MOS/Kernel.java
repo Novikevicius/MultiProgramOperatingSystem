@@ -174,8 +174,8 @@ public class Kernel {
             {
                 Process p = readyProcesses.poll();
                 if(curState == State.READY || curState == State.RUNNING){
-                    p.changeState(State.READY);
-                    readyProcesses.add(p);
+                    currentProcess.changeState(State.READY);
+                    readyProcesses.add(currentProcess);
                 }
                 currentProcess = p;
                 p.changeState(State.RUNNING);
@@ -187,6 +187,9 @@ public class Kernel {
             }
         }
         currentProcess = readyProcesses.poll();
+    }
+    public void removeReady(Process p){
+        readyProcesses.remove(p);
     }
     public void shutdownOS()
     {
