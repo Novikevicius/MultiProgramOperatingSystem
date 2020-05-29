@@ -79,6 +79,10 @@ public class JobGovernor extends Process {
 
             case 7:
             kernel.requestResource(this, new PrintedResource(this));
+            break;
+
+            case 8:
+            resources.remove(resources.size()-1);
             counter = 3;
             break;
 
