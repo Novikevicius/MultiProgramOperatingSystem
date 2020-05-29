@@ -5,6 +5,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.Iterator;
 import java.util.Map;
 import java.util.PriorityQueue;
 import java.util.Set;
@@ -119,6 +120,7 @@ public class Kernel {
                 resource.freeResource(r);
             }
         }
+        System.out.println("Freeing " + r);
         resourceDistributor();
     }
     public void requestResource(Process p, Resource r, int amount){
@@ -154,6 +156,10 @@ public class Kernel {
                             resourceElements.remove(0);
                             p.takeResource(r);
                         }
+                        if(currentProcess == p)
+                        {
+                            currentProcess = null;
+                        }
                         waitingProcesses.remove(p);
                         blockedProcesses.remove(p);
                         p.changeState(State.READY);
@@ -182,14 +188,45 @@ public class Kernel {
                 }
                 currentProcess = p;
                 p.changeState(State.RUNNING);
+                printProcesses();
                 return;
             }
             else if(curState == State.READY || curState == State.RUNNING)
             {
+                printProcesses();
                 return;
             }
         }
         currentProcess = readyProcesses.poll();
+        printProcesses();
+    }
+    private void printProcesses()
+    {
+        if(!Main.DEBUG) return;
+        System.out.println("------------------------------------------");
+        System.out.println("Current process "  + currentProcess + " RUNNING");
+        System.out.println("Ready Processes ");
+        if(readyProcesses.isEmpty())
+        {
+            System.out.println(("\tNo processes"));
+        }
+        StringBuilder bd = new StringBuilder();
+        Iterator<Process> it = readyProcesses.iterator();
+        while(it.hasNext()){
+            Process p = it.next();
+            System.out.println("\t" + p + " READY");
+        }
+        System.out.println("Blocked Processes ");
+        if(blockedProcesses.isEmpty())
+        {
+            System.out.println(("\tNo processes"));
+        }
+        it = blockedProcesses.iterator();
+        while(it.hasNext()){
+            Process p = it.next();
+            System.out.println("\t" + p + " BLOCKED");
+        }
+        System.out.println("------------------------------------------");
     }
     public void removeReady(Process p){
         readyProcesses.remove(p);
