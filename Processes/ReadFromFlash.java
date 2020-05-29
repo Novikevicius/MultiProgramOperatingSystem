@@ -17,6 +17,7 @@ public class ReadFromFlash extends Process {
             break;
 
             case 1:
+            resources.remove(resources.size()-1);
             kernel.requestResource(this, new SupervisorMemoryResource());
             break;
 
@@ -27,6 +28,7 @@ public class ReadFromFlash extends Process {
             break;
 
             case 3:
+            resources.remove(resources.size()-1);
             kernel.freeResource(new TaskInMemoryResource(end));
             counter = -1;
             break;
