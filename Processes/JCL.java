@@ -20,6 +20,7 @@ public class JCL extends Process {
             case 1:
             if (!checkSyntax())
                 counter = -1;
+            resources.remove(resources.size()-1);
             break;
 
             case 2:
