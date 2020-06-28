@@ -45,7 +45,7 @@ public class Kernel {
                     } catch (IOException e) {
                         e.printStackTrace();
                     }
-                }else{
+                }else if ( Main.VERBOSE == 1 ){
                     System.out.println("\tRunning " + currentProcess + ": step " + currentProcess.getStep());
                 }
                 currentProcess.run();
@@ -57,20 +57,21 @@ public class Kernel {
         }
         destroyProcess(processes.get(0));
         System.out.println("Shutting down OS");
-
     }
     public void createProcess(Process process){
         processes.add(process);
         readyProcesses.add(process);
         process.changeState(State.READY);
-        System.out.println(process + " created");
+        if( Main.VERBOSE > 1)
+            System.out.println(process + " created");
     }
     public void destroyProcess(Process process){
         process.destroy();
         processes.remove(process);
         readyProcesses.remove(process);
         blockedProcesses.remove(process);
-        System.out.println(process + " destroyed");
+        if(  Main.VERBOSE > 1 )
+            System.out.println(process + " destroyed");
     }
     public void activateProcess(Process p){
         if(p.getState() == State.READY_SUSPENDED)
@@ -102,11 +103,13 @@ public class Kernel {
     }
     public void createResource(Resource r){
         resources.add(r);
-        System.out.println(r + " resource created");
+        if(  Main.VERBOSE > 1 )
+            System.out.println(r + " resource created");
     }
     public void deleteResource(Resource r){
         resources.remove(r);
-        System.out.println(r + " resource deleted");
+        if(  Main.VERBOSE > 1 )
+            System.out.println(r + " resource deleted");
     }
     public void deleteResources(){
         while(resources.size() > 0) {
@@ -120,7 +123,8 @@ public class Kernel {
                 resource.freeResource(r);
             }
         }
-        System.out.println("Freeing " + r);
+        if( Main.VERBOSE > 1 )
+            System.out.println("Freeing " + r);
         resourceDistributor();
     }
     public void requestResource(Process p, Resource r, int amount){
@@ -202,7 +206,7 @@ public class Kernel {
     }
     private void printProcesses()
     {
-        if(!Main.DEBUG) return;
+        if(!Main.DEBUG || Main.VERBOSE != 1) return;
         System.out.println("------------------------------------------");
         System.out.println("Current process "  + currentProcess + " RUNNING");
         System.out.println("Ready Processes ");
