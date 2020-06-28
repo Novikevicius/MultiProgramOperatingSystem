@@ -8,7 +8,7 @@ public class VirtualMachine extends Process {
     private int ptr;
     private int old_ptr;
     public VirtualMachine(Process parent) {
-        super(parent, "VirtualMachine", 5);
+        super(parent, "VirtualMachine", 5); // Must have lower priority then JobGovernor
         vm = new VM(kernel.getRM(), this);
     }
 
@@ -22,6 +22,8 @@ public class VirtualMachine extends Process {
                 kernel.getRM().setPTR(ptr);
                 break;
             case 1:
+            System.out.println("\t\t[VM" + this.getID() + "]:");
+            System.out.println("-------------------------------------");
                 try {
                     vm.runProgram();
                 } catch (Exception e) {
