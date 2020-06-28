@@ -7,7 +7,9 @@ import MultiProgramOperatingSystem.Resources.PrintResource;
 import MultiProgramOperatingSystem.Resources.PrintedResource;
 
 public class PrintLine extends Process {
-    
+    private PrintResource r;
+    private int page;
+    private int index;
     public PrintLine(Process parent){
         super(parent, "PrintLine", 80);
     }
@@ -24,26 +26,27 @@ public class PrintLine extends Process {
             break;
 
             case 2:
-            PrintResource r = (PrintResource)resources.get(0);
+            r = (PrintResource)resources.get(0);
             resources.remove(0);
-            int page = r.getPage();
-            StringBuilder builder = new StringBuilder();
-            for(int i=0; i < RM.PAGE_SIZE; i++)
-            {
-                int t = kernel.getRM().getWordAtMemory(page, i);
-                char c = (char)t;
-                if(c == 0) break;
-                builder.append(c);
-            }
-            Printer.print(builder.toString());
+            page = r.getPage();
+            index = 0;
             break;
 
             case 3:
+            char c = (char)(kernel.getRM().getWordAtMemory(page, index));
+            index++;
+            if (c != 0){
+                Printer.print(c);
+                counter = 2;
+            }
+            break;
+
+            case 4:
             resources.remove(resources.size()-1);
             kernel.freeResource(new Channel3Resource(this));
             break;
 
-            case 4:
+            case 5:
             kernel.freeResource(new PrintedResource(this));
             counter = -1;
             break;
