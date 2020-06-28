@@ -1,4 +1,5 @@
-DATA
+# ------- Program 1
+DATA # comment
 DW 5
 DW 48
 DW 75
@@ -14,6 +15,7 @@ SW1 0 0
 SW1 0 1
 WRT 0
 HALT
+# -------- Program 2
 DATA
 DW 48
 DW 49

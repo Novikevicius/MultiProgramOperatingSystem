@@ -45,12 +45,25 @@ public class FlashMemory{
             int block = RM.SUPERVISOR_MEMORY_START;
             int offset = 0;
             StringBuilder s = new StringBuilder();
+            boolean isComment = false;
             while ((c = br.read()) != -1) {
                 next++;
                 if(block >= RM.SUPERVISOR_MEMORY_END)
                 {
                     System.out.println("Not Enough Supervisor Memory");
                     return -1;
+                }
+                if(c == '#'){
+                    isComment = true;
+                    continue;
+                }
+                if(isComment){
+                    if(c == 10 || c == 13)
+                    {
+                        isComment = false;
+                        next += 1;
+                    }
+                    continue;
                 }
                 if((s.toString().equals("") && c == 'H') || (s.toString().equals("H") && c == 'A')
                     || (s.toString().equals("HA") && c == 'L') || (s.toString().equals("HAL") && c == 'T')){
