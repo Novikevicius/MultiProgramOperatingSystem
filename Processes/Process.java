@@ -40,6 +40,9 @@ public abstract class Process implements Comparable{
     {
         state = newState;
     }
+    public int getID(){
+        return id;
+    }
     public State getState(){
         return state;
     }
